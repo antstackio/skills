@@ -1,0 +1,7 @@
+{
+  "name": "aws-bedrock-evals",
+  "description": "Build and run LLM-as-judge evaluation pipelines using Amazon Bedrock Evaluation Jobs with pre-computed inference datasets, built-in and custom metrics.",
+  "tags": ["aws", "bedrock", "evaluation", "llm", "testing", "model-evaluation"],
+  "category": "aws",
+  "version": "1.0.0"
+}
