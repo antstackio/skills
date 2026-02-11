@@ -1,9 +1,13 @@
-# AWS Bedrock Evaluation Jobs
+---
+name: aws-bedrock-evals
+description: Build and run LLM-as-judge evaluation pipelines using Amazon Bedrock Evaluation Jobs with pre-computed inference datasets. Use when setting up automated model evaluation, designing test scenarios, collecting pre-computed responses, configuring custom metrics, creating AWS infrastructure, running evaluation jobs, parsing results, and iterating on findings.
+license: MIT
+metadata:
+  author: antstackio
+  version: '1.0.0'
+---
 
-> **Skill**: aws-bedrock-evals
-> **Description**: Build and run LLM-as-judge evaluation pipelines using Amazon Bedrock Evaluation Jobs with pre-computed inference datasets.
-> **Last updated**: 2025-06
-> **Sources**: [AWS Bedrock Evaluation Docs](https://docs.aws.amazon.com/bedrock/latest/userguide/model-evaluation.html), [CreateEvaluationJob API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_CreateEvaluationJob.html), [AWS CLI Reference](https://docs.aws.amazon.com/cli/latest/reference/bedrock/create-evaluation-job.html)
+# AWS Bedrock Evaluation Jobs
 
 ---
 
