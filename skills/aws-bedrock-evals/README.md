@@ -46,6 +46,24 @@ The agent gathers your inputs (region, models, scenario count, etc.), shows a co
 - **Ongoing quality monitoring** — track scores over time with repeated eval runs
 - **System prompt iteration** — measure the impact of prompt changes with data
 
+## Security
+
+This skill includes security hardening to prevent common vulnerabilities when working with AI evaluation pipelines:
+
+- **Input validation** — All user-provided values (regions, bucket names, role names, etc.) are validated against strict regex patterns before use in shell commands. See `scripts/validate-inputs.sh`.
+- **Prompt injection mitigation** — Custom metric judge prompts wrap untrusted content (`{{prompt}}`, `{{prediction}}`) in boundary markers with anti-injection preambles. JSONL fields are sanitized before upload.
+- **Least-privilege IAM** — IAM templates use scoped resource ARNs, `aws:SourceArn` conditions, and explicit deny statements for dangerous S3 actions.
+- **Dataset integrity** — S3 uploads use `--checksum-algorithm SHA256` for integrity verification. Downloads validate JSONL structure. See `scripts/verify-dataset.sh`.
+- **Command review** — The agent shows all generated commands to the user for review before execution and confirms destructive operations.
+
+### Validation Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/validate-inputs.sh` | Validates AWS regions, bucket names, role names, job names, account IDs, and model IDs |
+| `scripts/validate-iam-policy.sh` | Checks IAM policy JSON for wildcard resources, missing conditions, and dangerous actions |
+| `scripts/verify-dataset.sh` | Validates JSONL structure, checks for injection attempts, computes SHA-256 checksum |
+
 ## References
 
 - [Model Evaluation Metrics](https://docs.aws.amazon.com/bedrock/latest/userguide/model-evaluation-metrics.html) — all 11 built-in metrics
