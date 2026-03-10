@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "c78c6deea3ba",
+  "session_id": "9679defd-4571-49ae-a5ea-4d094ff0aff0",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-10T13:36:23.815274Z",
+  "branch": "feat/skill-evaluator",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "packages/skill-evaluator/evaluate.py"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "9b1e20e1-1d14-4d0e-afa8-8e59b62e6f03",
+  "checkpoint_transcript_start": 176,
+  "transcript_lines_at_start": 176,
+  "token_usage": {
+    "input_tokens": 28,
+    "cache_creation_tokens": 8204,
+    "cache_read_tokens": 1113384,
+    "output_tokens": 3068,
+    "api_call_count": 18
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-10T13:36:23.763314Z",
+    "agent_lines": 3,
+    "human_added": 346,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 349,
+    "agent_percentage": 0.8595988538681949
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "c78c6deea3ba",
+  "strategy": "manual-commit",
+  "branch": "feat/skill-evaluator",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "packages/skill-evaluator/evaluate.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c7/8c6deea3ba/0/metadata.json",
+      "transcript": "/c7/8c6deea3ba/0/full.jsonl",
+      "context": "/c7/8c6deea3ba/0/context.md",
+      "content_hash": "/c7/8c6deea3ba/0/content_hash.txt",
+      "prompt": "/c7/8c6deea3ba/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 28,
+    "cache_creation_tokens": 8204,
+    "cache_read_tokens": 1113384,
+    "output_tokens": 3068,
+    "api_call_count": 18
+  }
+}

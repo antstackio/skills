@@ -1,0 +1,170 @@
+Implement the following plan:
+
+# Skill Evaluator — Implementation Plan
+
+## Context
+
+The skills repo needs an automated evaluator to assess Claude Code skills (SKILL.md files) across usefulness, efficiency, correctness, and safety. Currently there is no evaluation tooling — the `packages/` directory is empty (just `.gitkeep`). The evaluator will use two tiers: deterministic checks (no LLM) and LLM-as-judge scoring.
+
+## Files to Create
+
+```
+packages/skill-evaluator/
+  evaluate.py          # CLI entry point + Tier 1 checks + orchestration
+  rubrics.py           # Tier 2 LLM judge rubric definitions
+  requirements.txt     # pyyaml, tiktoken, anthropic
+```
+
+3 files total. No tests, no packaging, no CI for v1.
+
+## Step 1: `requirements.txt`
+
+```
+pyyaml>=6.0
+tiktoken>=0.7
+anthropic>=0.40
+```
+
+## Step 2: `rubrics.py`
+
+Dict of 5 rubrics, each with:
+- `dimension` name
+- `question` (what to evaluate)
+- `scale` dict mapping 1-5 to descriptions
+
+Dimensions: **usefulness**, **efficiency**, **correctness**, **safety**, **completeness**
+
+## Step 3: `evaluate.py` — Tier 1 Checks
+
+Seven functions returning `{check, passed, score, detail}`:
+
+1. **`check_skill_md_exists`** — SKILL.md present? Hard gate.
+2. **`check_kebab_case`** — Dir name matches `^[a-z0-9]+(-[a-z0-9]+)*$`
+3. **`check_yaml_frontmatter`** — Parse `---` block, check name/description fields
+4. **`check_metadata_json`** — If present, validate JSON has name/description/tags
+5. **`check_length_efficiency`** — Token count via tiktoken (`cl100k_base`), instruction-to-boilerplate ratio, flag if >15k tokens
+6. **`check_prerequisites`** — Keyword scan (aws/gcp/docker/k8s/database markers) to classify broad vs niche
+7. **`check_security_patterns`** — Regex for dangerous patterns (`rm -rf /`, `--no-verify`, `sudo`, `eval(`, pipe-to-shell, prompt injection phrases), list external URLs, check for security section
+
+## Step 4: `evaluate.py` — Tier 2 LLM Judge
+
+`judge_dimension(skill_content, metadata, dimension, rubric, model)` function:
+- System prompt: "You are a skill quality evaluator..."
+- User prompt: skill content + rubric + "respond as JSON"
+- Chain-of-thought: judge reasons before scoring
+- Output: `{"reasoning": "...", "score": N, "dimension": "..."}`
+- Model: `claude-sonnet-4-20250514`
+- 5 sequential calls, one per dimension
+
+## Step 5: CLI + Report
+
+```
+python evaluate.py <skill-dir> [--tier 1|2|all] [--model MODEL] [--json]
+```
+
+Text report:
+```
+=== Skill Evaluation Report ===
+Skill: aws-bedrock-evals
+
+--- Tier 1: Deterministic Checks ---
+[PASS] SKILL.md exists
+[PASS] kebab-case directory
+...
+
+--- Tier 2: LLM-as-Judge ---
+Usefulness:    4/5 — "reason..."
+Efficiency:    3/5 — "reason..."
+...
+
+--- Summary ---
+Tier 1: 6/7 passed | Tier 2: 4.2/5.0 avg | Grade: A-
+```
+
+Grade: 4.5+=A, 4.0+=A-, 3.5+=B+, 3.0+=B, 2.5+=C, 2.0+=D, <2.0=F
+
+## Build Order
+
+1. Create `requirements.txt`
+2. Create `rubrics.py`
+3. Create `evaluate.py` with Tier 1 only, test against `skills/aws-bedrock-evals/`
+4. Add Tier 2 LLM judge calls, test full eval
+5. Polish output formatting
+
+## Git
+
+- Create branch `feat/skill-evaluator` before any changes
+- No co-author lines in commits or PR descriptions
+
+## Verification
+
+```bash
+cd packages/skill-evaluator
+pip install -r requirements.txt
+
+# Tier 1 only (no API key needed)
+python evaluate.py ../../skills/aws-bedrock-evals/ --tier 1
+
+# Full eval (needs ANTHROPIC_API_KEY)
+python evaluate.py ../../skills/aws-bedrock-evals/
+
+# JSON output
+python evaluate.py ../../skills/aws-bedrock-evals/ --json
+```
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/vishwasnavadak/.REDACTED.jsonl
+
+---
+
+can we use `claude -p` instead of using api key for doing this?
+
+---
+
+try it and analyze
+
+---
+
+raise PR for this. keep the description concise
+
+---
+
+<bash-input>python3 evaluate.py ../../skills/aws-bedrock-evals/ --tier 2</bash-input>
+
+---
+
+<bash-stdout></bash-stdout><bash-stderr>/usr/local/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/vishwasnavadak/Desktop/workspace/Work/Antstack/skills/evaluate.py': [Errno 2] No such file or directory
+</bash-stderr>
+
+---
+
+<bash-input>python evaluate.py ../../skills/aws-bedrock-evals/ --tier 2</bash-input>
+
+---
+
+<bash-stdout></bash-stdout><bash-stderr>(eval):1: command not found: python
+</bash-stderr>
+
+---
+
+can we use uv for python env management?
+
+---
+
+add a simple readme.md for the folder that has the commands to run
+
+---
+
+PR descrion is now outdated
+
+---
+
+the coomands are still using puthon3 instead of uv.
+
+---
+
+still same.
+
+---
+
+the second command runs in backgorund without any ouput until the output comes up. is there a way show progress?
