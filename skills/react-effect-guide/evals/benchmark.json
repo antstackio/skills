@@ -1,0 +1,66 @@
+{
+  "skill": "react-effect-guide",
+  "model": "claude-sonnet-4-20250514",
+  "total_test_cases": 6,
+  "total_assertions": 28,
+  "summary": {
+    "with_skill": { "passed": 28, "total": 28 },
+    "without_skill": { "passed": 23, "total": 28 }
+  },
+  "test_results": [
+    {
+      "test": "effect-chain-review",
+      "type": "review",
+      "with_skill": "5/5",
+      "without_skill": "4/5",
+      "delta": "+1",
+      "verdict": "SLIGHT WIN"
+    },
+    {
+      "test": "toggle-component",
+      "type": "generation",
+      "with_skill": "4/4",
+      "without_skill": "1/4",
+      "delta": "+3",
+      "verdict": "MAJOR WIN"
+    },
+    {
+      "test": "search-race-condition",
+      "type": "review",
+      "with_skill": "5/5",
+      "without_skill": "5/5",
+      "delta": "0",
+      "verdict": "TIE"
+    },
+    {
+      "test": "key-prop-reset",
+      "type": "review",
+      "with_skill": "4/4",
+      "without_skill": "4/4",
+      "delta": "0",
+      "verdict": "TIE"
+    },
+    {
+      "test": "shared-event-logic",
+      "type": "review",
+      "with_skill": "5/5",
+      "without_skill": "5/5",
+      "delta": "0",
+      "verdict": "TIE"
+    },
+    {
+      "test": "data-flows-up",
+      "type": "review",
+      "with_skill": "5/5",
+      "without_skill": "4/5",
+      "delta": "+1",
+      "verdict": "SLIGHT WIN"
+    }
+  ],
+  "analysis": {
+    "biggest_impact": "toggle-component — baseline writes the exact useEffect→onChange anti-pattern the skill prevents (+3 delta)",
+    "skill_sweet_spot": "Code generation tasks. Baseline fails when writing new code more than when reviewing existing code.",
+    "ties_explanation": "3/6 tests are ties. Claude already handles well-known review patterns. Skill adds most value when WRITING new code.",
+    "qualitative_differences": "With-skill responses reference the decision tree, use display-caused vs event-caused framing, and consistently recommend data-fetching libraries."
+  }
+}
