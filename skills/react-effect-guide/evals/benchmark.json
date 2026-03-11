@@ -1,0 +1,90 @@
+{
+  "skill": "react-effect-guide",
+  "model": "claude-sonnet-4-20250514",
+  "total_test_cases": 9,
+  "total_assertions": 42,
+  "summary": {
+    "with_skill": { "passed": 42, "total": 42 },
+    "without_skill": { "passed": 36, "total": 42 }
+  },
+  "test_results": [
+    {
+      "test": "effect-chain-review",
+      "type": "review",
+      "with_skill": { "passed": 5, "total": 5 },
+      "without_skill": { "passed": 4, "total": 5 },
+      "delta": 1,
+      "verdict": "SLIGHT WIN"
+    },
+    {
+      "test": "toggle-component",
+      "type": "generation",
+      "with_skill": { "passed": 4, "total": 4 },
+      "without_skill": { "passed": 1, "total": 4 },
+      "delta": 3,
+      "verdict": "MAJOR WIN"
+    },
+    {
+      "test": "search-race-condition",
+      "type": "review",
+      "with_skill": { "passed": 5, "total": 5 },
+      "without_skill": { "passed": 5, "total": 5 },
+      "delta": 0,
+      "verdict": "TIE"
+    },
+    {
+      "test": "key-prop-reset",
+      "type": "review",
+      "with_skill": { "passed": 4, "total": 4 },
+      "without_skill": { "passed": 4, "total": 4 },
+      "delta": 0,
+      "verdict": "TIE"
+    },
+    {
+      "test": "shared-event-logic",
+      "type": "review",
+      "with_skill": { "passed": 5, "total": 5 },
+      "without_skill": { "passed": 5, "total": 5 },
+      "delta": 0,
+      "verdict": "TIE"
+    },
+    {
+      "test": "data-flows-up",
+      "type": "review",
+      "with_skill": { "passed": 5, "total": 5 },
+      "without_skill": { "passed": 4, "total": 5 },
+      "delta": 1,
+      "verdict": "SLIGHT WIN"
+    },
+    {
+      "test": "online-status-component",
+      "type": "generation",
+      "with_skill": { "passed": 5, "total": 5 },
+      "without_skill": { "passed": 5, "total": 5 },
+      "delta": 0,
+      "verdict": "TIE"
+    },
+    {
+      "test": "filtered-product-list",
+      "type": "generation",
+      "with_skill": { "passed": 4, "total": 4 },
+      "without_skill": { "passed": 4, "total": 4 },
+      "delta": 0,
+      "verdict": "TIE"
+    },
+    {
+      "test": "shipping-form-parent-sync",
+      "type": "generation",
+      "with_skill": { "passed": 5, "total": 5 },
+      "without_skill": { "passed": 4, "total": 5 },
+      "delta": 1,
+      "verdict": "SLIGHT WIN"
+    }
+  ],
+  "analysis": {
+    "biggest_impact": "toggle-component — baseline writes the exact useEffect→onChange anti-pattern the skill prevents (+3 delta)",
+    "skill_sweet_spot": "Code generation tasks. Baseline fails when writing new code more than when reviewing existing code.",
+    "ties_explanation": "5/9 tests are ties (3 review, 2 generation). Claude handles well-known patterns without the skill. Skill adds most value on notify-parent and Effect chain patterns.",
+    "qualitative_differences": "With-skill responses reference the decision tree, use display-caused vs event-caused framing, and consistently recommend data-fetching libraries."
+  }
+}

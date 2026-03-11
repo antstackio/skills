@@ -1,0 +1,121 @@
+{
+  "skill_name": "react-effect-guide",
+  "version": "1.0.0",
+  "total_assertions": 42,
+  "evals": [
+    {
+      "id": 1,
+      "name": "effect-chain-review",
+      "type": "review",
+      "prompt": "Can you review this React component? I feel like it's re-rendering too much but I'm not sure why.\n\n```jsx\nimport { useState, useEffect } from 'react';\n\nfunction OrderSummary({ items, taxRate }) {\n  const [subtotal, setSubtotal] = useState(0);\n  const [tax, setTax] = useState(0);\n  const [total, setTotal] = useState(0);\n\n  useEffect(() => {\n    const newSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);\n    setSubtotal(newSubtotal);\n  }, [items]);\n\n  useEffect(() => {\n    setTax(subtotal * taxRate);\n  }, [subtotal, taxRate]);\n\n  useEffect(() => {\n    setTotal(subtotal + tax);\n  }, [subtotal, tax]);\n\n  return (\n    <div>\n      <h2>Order Summary</h2>\n      {items.map(item => (\n        <div key={item.id}>\n          {item.name} x{item.qty} — ${(item.price * item.qty).toFixed(2)}\n        </div>\n      ))}\n      <hr />\n      <p>Subtotal: ${subtotal.toFixed(2)}</p>\n      <p>Tax: ${tax.toFixed(2)}</p>\n      <p>Total: ${total.toFixed(2)}</p>\n    </div>\n  );\n}\n\nexport default OrderSummary;\n```",
+      "assertions": [
+        { "id": "identifies-derived-state", "text": "Identifies subtotal, tax, total as derived state that doesn't need useState" },
+        { "id": "identifies-effect-chain", "text": "Recognizes the 3 useEffects as a cascading Effect chain causing unnecessary re-renders" },
+        { "id": "shows-fix-inline-calc", "text": "Recommends replacing with direct const calculations during render" },
+        { "id": "explains-why-bad", "text": "Explains the problem (extra render passes, unnecessary re-renders)" },
+        { "id": "names-pattern", "text": "References pattern terminology (derived state, Effect chain)" }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "toggle-component",
+      "type": "generation",
+      "prompt": "Build me a Toggle component in React. It should have an internal on/off state, render a button that toggles it, and call an onChange prop whenever it changes so the parent can stay in sync.",
+      "assertions": [
+        { "id": "no-useeffect-for-onchange", "text": "Does NOT use useEffect watching isOn to call onChange (the anti-pattern)" },
+        { "id": "onchange-in-handler", "text": "Calls onChange in the click handler alongside setState" },
+        { "id": "mentions-controlled-alternative", "text": "Offers a fully-controlled pattern where the parent owns the state" },
+        { "id": "working-component", "text": "Provides a working implementation (not just advice)" }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "search-race-condition",
+      "type": "review",
+      "prompt": "My search component has a weird bug — sometimes when I type fast, the results shown don't match what I typed. Can you look at this and figure out what's going on?\n\n```jsx\nimport { useState, useEffect } from 'react';\n\nfunction SearchResults({ query }) {\n  const [results, setResults] = useState([]);\n  const [isLoading, setIsLoading] = useState(false);\n\n  useEffect(() => {\n    setIsLoading(true);\n    fetch(`/api/search?q=${encodeURIComponent(query)}`)\n      .then(res => res.json())\n      .then(data => {\n        setResults(data.results);\n        setIsLoading(false);\n      });\n  }, [query]);\n\n  if (isLoading) return <p>Searching...</p>;\n\n  return (\n    <ul>\n      {results.map(r => (\n        <li key={r.id}>{r.title}</li>\n      ))}\n    </ul>\n  );\n}\n\nexport default SearchResults;\n```",
+      "assertions": [
+        { "id": "identifies-race-condition", "text": "Identifies the root cause as responses arriving out of order (race condition)" },
+        { "id": "shows-ignore-flag-fix", "text": "Shows cleanup function with ignore/cancelled flag in the Effect" },
+        { "id": "effect-is-appropriate", "text": "Acknowledges useEffect IS appropriate here — the issue is missing cleanup, not the Effect itself" },
+        { "id": "recommends-library", "text": "Recommends TanStack Query, SWR, or a framework-level data fetching solution" },
+        { "id": "shows-corrected-code", "text": "Provides corrected code with the cleanup fix (not just a description)" }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "key-prop-reset",
+      "type": "review",
+      "prompt": "I have a chat app where switching conversations should clear the draft text and close the emoji picker. I'm using useEffect to reset state when conversationId changes. Is there a better way?\n\n```jsx\nimport { useState, useEffect } from 'react';\n\nfunction ChatPanel({ conversationId, messages }) {\n  const [draft, setDraft] = useState('');\n  const [showEmojiPicker, setShowEmojiPicker] = useState(false);\n\n  useEffect(() => {\n    setDraft('');\n    setShowEmojiPicker(false);\n  }, [conversationId]);\n\n  return (\n    <div>\n      <div className=\"messages\">\n        {messages.map(m => <Message key={m.id} message={m} />)}\n      </div>\n      <textarea value={draft} onChange={e => setDraft(e.target.value)} />\n      {showEmojiPicker && <EmojiPicker onSelect={emoji => setDraft(d => d + emoji)} />}\n      <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>😀</button>\n    </div>\n  );\n}\n```",
+      "assertions": [
+        { "id": "recommends-key-prop", "text": "Recommends using the key prop instead of useEffect to reset state" },
+        { "id": "explains-why-problematic", "text": "Explains why useEffect reset is problematic (extra render pass with stale state, fragile as component grows)" },
+        { "id": "shows-corrected-code", "text": "Shows corrected code with key={conversationId}" },
+        { "id": "notes-tradeoff", "text": "Notes the tradeoff — key resets ALL state; mentions alternatives for partial reset" }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "shared-event-logic",
+      "type": "review",
+      "prompt": "I have a product page with two 'add to cart' buttons (Buy Now and Quick Add). I'm using useEffect to show a toast when addedToCart becomes true. But the toast also fires when the page refreshes. What's going on?\n\n```jsx\nimport { useState, useEffect } from 'react';\nimport { showToast } from './toast';\n\nfunction ProductPage({ product }) {\n  const [addedToCart, setAddedToCart] = useState(false);\n\n  useEffect(() => {\n    if (addedToCart) {\n      showToast(`${product.name} added to cart!`);\n    }\n  }, [addedToCart, product.name]);\n\n  function handleBuyNow() {\n    setAddedToCart(true);\n    // ... navigate to checkout\n  }\n\n  function handleQuickAdd() {\n    setAddedToCart(true);\n  }\n\n  return (\n    <div>\n      <h1>{product.name}</h1>\n      <button onClick={handleBuyNow}>Buy Now</button>\n      <button onClick={handleQuickAdd}>Quick Add</button>\n    </div>\n  );\n}\n```",
+      "assertions": [
+        { "id": "explains-refresh-bug", "text": "Explains why the toast fires on refresh (Effect runs on mount if addedToCart is true)" },
+        { "id": "identifies-event-in-effect", "text": "Identifies this as event-caused logic placed inside an Effect" },
+        { "id": "extracts-shared-helper", "text": "Extracts shared logic into a helper function called from both handlers" },
+        { "id": "removes-useeffect", "text": "Removes the useEffect entirely (event logic belongs in handlers)" },
+        { "id": "handles-state-correctly", "text": "Handles addedToCart state correctly (remove it, or keep only for UI purposes)" }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "data-flows-up",
+      "type": "review",
+      "prompt": "I have a UserProfile component that fetches user data and passes it up to the parent Layout via an onUserLoaded callback in a useEffect. My teammate says this is an anti-pattern but I don't understand why — how else would the parent get the data?\n\n```jsx\nimport { useState, useEffect } from 'react';\n\nfunction UserProfile({ userId, onUserLoaded }) {\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    fetch(`/api/users/${userId}`)\n      .then(res => res.json())\n      .then(data => setUser(data));\n  }, [userId]);\n\n  useEffect(() => {\n    if (user) {\n      onUserLoaded(user);\n    }\n  }, [user, onUserLoaded]);\n\n  if (!user) return <p>Loading...</p>;\n\n  return (\n    <div>\n      <h2>{user.name}</h2>\n      <p>{user.email}</p>\n    </div>\n  );\n}\n```",
+      "assertions": [
+        { "id": "identifies-data-flows-up", "text": "Identifies the second useEffect as 'data flowing up via Effects' anti-pattern" },
+        { "id": "recommends-lift-fetch", "text": "Recommends lifting the fetch to the parent component" },
+        { "id": "shows-corrected-code", "text": "Shows corrected code with proper data ownership (parent fetches, child displays)" },
+        { "id": "adds-cleanup", "text": "Adds race condition cleanup (ignore flag) to the fetch Effect" },
+        { "id": "recommends-library", "text": "Recommends a data-fetching library (TanStack Query, SWR, etc.)" }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "online-status-component",
+      "type": "generation",
+      "prompt": "Build me a React component that shows whether the user is currently online or offline. It should update in real-time when the network status changes (like when you toggle airplane mode). Show a green dot for online and a red dot for offline.",
+      "assertions": [
+        { "id": "uses-usesyncexternalstore", "text": "Uses useSyncExternalStore (not useEffect + addEventListener)" },
+        { "id": "no-useeffect-subscribe", "text": "Does NOT use useEffect with window.addEventListener('online'/'offline') to sync state" },
+        { "id": "subscribe-function", "text": "Provides a subscribe function that adds/removes online and offline event listeners" },
+        { "id": "getsnapshot-function", "text": "Provides a getSnapshot function using navigator.onLine" },
+        { "id": "working-component", "text": "Provides a working implementation (not just advice)" }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "filtered-product-list",
+      "type": "generation",
+      "prompt": "Build a ProductList React component that takes an array of products and a search query as props. It should display only the products whose name matches the query, and show a count like 'Showing 5 of 120 products'. The product list could be huge (thousands of items) so it needs to be performant.",
+      "assertions": [
+        { "id": "no-useeffect-filter", "text": "Does NOT use useEffect + setState to compute the filtered list" },
+        { "id": "computes-during-render", "text": "Computes filtered results during render (not in an Effect)" },
+        { "id": "uses-usememo", "text": "Uses useMemo to memoize the expensive filter computation" },
+        { "id": "working-component", "text": "Provides a working implementation (not just advice)" }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "shipping-form-parent-sync",
+      "type": "generation",
+      "prompt": "Build a ShippingForm component with fields for name, address, and zip code. The parent component needs to know the current form values in real-time so it can update a live preview panel next to the form. How should I structure this?",
+      "assertions": [
+        { "id": "no-useeffect-onchange", "text": "Does NOT use useEffect watching form state to call a parent callback" },
+        { "id": "handler-or-lift", "text": "Either calls parent callback in onChange handlers, or lifts state to parent" },
+        { "id": "explains-why-not-effect", "text": "Explains why useEffect is wrong here (event-caused, extra render pass, stale values)" },
+        { "id": "mentions-controlled-pattern", "text": "Mentions or implements a controlled pattern where parent owns form state" },
+        { "id": "working-component", "text": "Provides a working implementation (not just advice)" }
+      ]
+    }
+  ]
+}
