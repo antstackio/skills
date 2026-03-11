@@ -17,6 +17,7 @@ See [AGENTS.md](./AGENTS.md) for guidelines on creating and submitting skills.
 | Skill | Description |
 |-------|-------------|
 | [aws-bedrock-evals](./skills/aws-bedrock-evals/) | Build LLM-as-judge evaluation pipelines with Amazon Bedrock Evaluation Jobs |
+| [react-effect-guide](./skills/react-effect-guide/) | Identify unnecessary useEffect usage in React code and recommend the correct alternative pattern |
 
 ## License
 

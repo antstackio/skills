@@ -1,0 +1,7 @@
+{
+  "name": "react-effect-guide",
+  "description": "Identifies unnecessary useEffect usage in React code and recommends the correct alternative pattern. Covers all 12 anti-patterns from React's official docs.",
+  "tags": ["react", "useEffect", "hooks", "code-review", "best-practices", "performance"],
+  "category": "react",
+  "version": "1.0.0"
+}
