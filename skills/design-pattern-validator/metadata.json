@@ -1,0 +1,7 @@
+{
+  "name": "design-pattern-validator",
+  "description": "Validates design pattern usage in TypeScript codebases based on situational appropriateness. Identifies correct patterns, misused patterns, and missing patterns. Covers all 23 Gang of Four design patterns.",
+  "tags": ["typescript", "design-patterns", "architecture", "code-review", "best-practices", "refactoring"],
+  "category": "architecture",
+  "version": "1.0.0"
+}
