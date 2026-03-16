@@ -1,3 +1,8 @@
+---
+name: infra-cost-estimator
+description: Predict monthly AWS production cost from SAM, CDK, or Terraform files before deployment.
+---
+
 # infra-cost-estimator
 
 Predict monthly AWS production cost from IaC files before deployment. Works with SAM, CDK, and Terraform. Fetches live pricing from the AWS Pricing API. Uses CloudWatch actuals if the stack is deployed. Ranks optimizations by estimated savings.
@@ -42,7 +47,7 @@ Examples of always-billable types:
 `AWS::SQS::Queue`,
 `AWS::SNS::Topic`,
 `AWS::Events::EventBus` (custom buses only — default bus is free),
-`AWS::Scheduler::Schedule`, `AWS::Scheduler::ScheduleGroup`,
+`AWS::Scheduler::Schedule`,
 `AWS::Kinesis::Stream`,
 `AWS::StepFunctions::StateMachine`,
 `AWS::CodeBuild::Project`,
@@ -221,14 +226,14 @@ aws cloudformation describe-stack-resources \
 aws cloudwatch get-metric-statistics \
   --namespace AWS/Lambda --metric-name Invocations \
   --dimensions Name=FunctionName,Value=[PHYSICAL_FUNCTION_NAME] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
 aws cloudwatch get-metric-statistics \
   --namespace AWS/Lambda --metric-name Duration \
   --dimensions Name=FunctionName,Value=[PHYSICAL_FUNCTION_NAME] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Average
 
@@ -236,14 +241,14 @@ aws cloudwatch get-metric-statistics \
 aws cloudwatch get-metric-statistics \
   --namespace AWS/DynamoDB --metric-name ConsumedReadCapacityUnits \
   --dimensions Name=TableName,Value=[TABLE_NAME] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
 aws cloudwatch get-metric-statistics \
   --namespace AWS/DynamoDB --metric-name ConsumedWriteCapacityUnits \
   --dimensions Name=TableName,Value=[TABLE_NAME] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
@@ -251,7 +256,7 @@ aws cloudwatch get-metric-statistics \
 aws cloudwatch get-metric-statistics \
   --namespace AWS/Logs --metric-name IncomingBytes \
   --dimensions Name=LogGroupName,Value=/aws/lambda/[PHYSICAL_FUNCTION_NAME] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
@@ -259,14 +264,14 @@ aws cloudwatch get-metric-statistics \
 aws cloudwatch get-metric-statistics \
   --namespace AWS/CloudFront --metric-name Requests \
   --dimensions Name=DistributionId,Value=[DISTRIBUTION_ID] Name=Region,Value=Global \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
 aws cloudwatch get-metric-statistics \
   --namespace AWS/CloudFront --metric-name BytesDownloaded \
   --dimensions Name=DistributionId,Value=[DISTRIBUTION_ID] Name=Region,Value=Global \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
@@ -274,14 +279,14 @@ aws cloudwatch get-metric-statistics \
 aws cloudwatch get-metric-statistics \
   --namespace AWS/CodeBuild --metric-name Builds \
   --dimensions Name=ProjectName,Value=[PROJECT_NAME] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
 aws cloudwatch get-metric-statistics \
   --namespace AWS/CodeBuild --metric-name Duration \
   --dimensions Name=ProjectName,Value=[PROJECT_NAME] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 
@@ -289,7 +294,7 @@ aws cloudwatch get-metric-statistics \
 aws cloudwatch get-metric-statistics \
   --namespace AWS/Bedrock --metric-name Invocations \
   --dimensions Name=ModelId,Value=[MODEL_ID] \
-  --start-time $(date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
+  --start-time $(date -u -d '30 days ago' '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v-30d '+%Y-%m-%dT%H:%M:%SZ') \
   --end-time $(date -u '+%Y-%m-%dT%H:%M:%SZ') \
   --period 2592000 --statistics Sum
 ```
@@ -400,7 +405,7 @@ For resource types not in this table: try `aws pricing describe-services --regio
 - **API GW REST**: `ApiGatewayRequest` (Tier 1)
 - **SQS**: `SQS-Requests-Tier1`
 - **S3 storage**: `TimedStorage-ByteHrs` with `storageClass=General Purpose`
-- **CloudWatch Logs**: `USE1-DataProcessing-Bytes` (ingestion), `USE1-TimedStorage-ByteHrs` (storage)
+- **CloudWatch Logs**: `[REGION_PREFIX]-DataProcessing-Bytes` (ingestion), `[REGION_PREFIX]-TimedStorage-ByteHrs` (storage) — prefix is region-specific (e.g. `USE1` for us-east-1, `USE2` for us-east-2, `USW2` for us-west-2). Filter by `usagetype` containing `DataProcessing-Bytes` if prefix is unknown.
 - **CloudFront**: `US-Requests-Tier1`, `US-DataTransfer-Out-Bytes`
 - **CodeBuild**: filter by `computeType` attribute matching the project's compute type
 - **Cognito**: `CognitoUserPools-MAU`
