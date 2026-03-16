@@ -1,0 +1,20 @@
+{
+  "name": "agent-web-compatibility",
+  "description": "Audit and redesign websites to perform well for both human visitors and AI agents acting on their behalf. Covers structured data markup, machine-readable trust signals, agent-friendly booking flows, and llms.txt setup for clinics, restaurants, salons, and local e-commerce.",
+  "tags": [
+    "web-design",
+    "ai-agents",
+    "structured-data",
+    "schema-org",
+    "seo",
+    "geo",
+    "llms-txt",
+    "booking",
+    "dual-consumption",
+    "agentic-web",
+    "trust-signals",
+    "local-business"
+  ],
+  "category": "web-design",
+  "version": "1.0.0"
+}
