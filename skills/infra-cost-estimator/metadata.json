@@ -1,0 +1,7 @@
+{
+  "name": "infra-cost-estimator",
+  "description": "Predicts monthly AWS production cost from SAM, CDK, or Terraform files. Fetches live pricing from AWS Pricing API, uses CloudWatch actuals if deployed, and ranks cost optimizations by savings potential.",
+  "tags": ["aws", "cost", "serverless", "sam", "cdk", "terraform", "finops", "optimization", "cloudwatch", "pricing"],
+  "category": "aws",
+  "version": "1.0.0"
+}
