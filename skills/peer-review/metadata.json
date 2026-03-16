@@ -1,0 +1,7 @@
+{
+  "name": "peer-review",
+  "description": "Generate evidence-backed peer reviews using real collaboration data from GitHub, GitLab, Slack, and Jira. Supports tiered access (Full, GitHub-only, Jira-Hub, Minimal), auto MCP setup, and external/contractor mode.",
+  "tags": ["peer-review", "performance-review", "360-feedback", "github", "jira", "slack", "gitlab", "hr"],
+  "category": "productivity",
+  "version": "1.0.0"
+}
