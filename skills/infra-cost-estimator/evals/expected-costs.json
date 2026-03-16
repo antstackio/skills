@@ -1,0 +1,104 @@
+{
+  "description": "Expected cost ranges for sam-simple.yaml at default usage (300K req/month, us-east-1)",
+  "defaults": {
+    "requests_per_month": 300000,
+    "avg_duration_ms": 500,
+    "dynamodb_reads_per_month": 600000,
+    "dynamodb_writes_per_month": 300000,
+    "dynamodb_stored_gb": 1,
+    "dynamodb_gsi_count": 1,
+    "sqs_messages_per_month": 300000,
+    "cloudwatch_log_mb_per_function": 100,
+    "secrets_manager_api_calls_per_month": 300000,
+    "avg_response_size_kb": 5,
+    "daily_report_invocations_per_month": 30
+  },
+  "expected_costs": {
+    "lambda": {
+      "low": 1.00,
+      "high": 2.50,
+      "notes": "3 functions (arm64, 512MB/256MB/256MB). ProcessOrder dominates."
+    },
+    "api_gateway_rest": {
+      "low": 0.80,
+      "high": 1.50,
+      "notes": "REST API at $3.50/million requests"
+    },
+    "dynamodb": {
+      "low": 0.40,
+      "high": 1.00,
+      "notes": "PAY_PER_REQUEST with 1 GSI. Includes storage at $0.25/GB and GSI write replication."
+    },
+    "sqs": {
+      "low": 0.08,
+      "high": 0.20,
+      "notes": "Standard queue at $0.40/million requests"
+    },
+    "secrets_manager": {
+      "low": 0.40,
+      "high": 2.50,
+      "notes": "1 secret ($0.40/mo) + API calls ($0.05/10K). API call volume depends on caching."
+    },
+    "cloudwatch_logs": {
+      "low": 0.10,
+      "high": 0.25,
+      "notes": "3 functions × 100MB ingestion. Storage compounds if retention=Never."
+    },
+    "eventbridge_scheduler": {
+      "low": 0.00,
+      "high": 0.00,
+      "notes": "30 invocations/month — well within 14M free tier"
+    },
+    "data_transfer": {
+      "low": 0.05,
+      "high": 0.20,
+      "notes": "API response egress: 300K × 5KB avg = ~1.5GB × $0.09/GB"
+    }
+  },
+  "total": {
+    "low": 3.00,
+    "high": 8.00
+  },
+  "assertions": {
+    "cost_accuracy": [
+      "Lambda line item exists with 3 functions",
+      "DynamoDB includes storage cost ($0.25/GB-month)",
+      "DynamoDB GSI write cost included (write cost multiplied by 1 + num_GSIs)",
+      "API Gateway identified as REST type",
+      "SQS identified as standard queue",
+      "Secrets Manager line item includes both per-secret and API call costs",
+      "CloudWatch Logs flagged as HOTSPOT or has retention=Never warning",
+      "EventBridge Scheduler shows $0.00 (under 14M free)",
+      "Data transfer line item present for API Gateway egress",
+      "All Lambda functions detected as arm64 architecture",
+      "Confidence range shown in output"
+    ],
+    "workflow_classification": [
+      "ProcessOrderFunction classified as USER_FACING (API trigger)",
+      "NotificationWorkerFunction classified as ASYNC_WORKER (SQS trigger)",
+      "DailyReportFunction classified as BACKGROUND (inferred from Scheduler::Schedule)"
+    ],
+    "usage_data_flow": [
+      "Phase 4 offers three options: describe traffic (A), provide numbers (B), or fetch CloudWatch (C)",
+      "Path A infers per-service usage from a natural language traffic description with reasoning shown",
+      "Path B shows baseline values with a Derivation column explaining where each default comes from",
+      "Inferred values are tagged as (inferred) in the cost output",
+      "User-provided values are tagged as (user) in the cost output",
+      "CloudWatch actuals are tagged as (actual) in the cost output",
+      "Baseline defaults are tagged as (baseline) in the cost output",
+      "Baseline derivation rules derive from template config (e.g. avg duration = 50% of Timeout)",
+      "Confidence levels: HIGH for CloudWatch, MEDIUM for inferred/user-provided, LOW for all baselines"
+    ],
+    "markdown_report": [
+      "cost-estimate.md file is created in the project directory",
+      "Report contains ## Summary section with estimated total and confidence range",
+      "Report contains ## Cost Breakdown section as a markdown table with Service, Monthly Cost, % of Total columns",
+      "Report contains ## Assumptions section as a markdown table with Source column (actual/user/default)",
+      "Report contains ## Per-Workflow Costs section with User-Facing, Async, and Scheduled subsections",
+      "Report contains ## Storage Growth section with Month 1/3/6/12 rows",
+      "Report contains ## Optimizations section with at least one recommendation including a code fix",
+      "Report ends with disclaimer linking to calculator.aws",
+      "Report header includes Confidence level (HIGH/MEDIUM/LOW)"
+    ]
+  }
+}
