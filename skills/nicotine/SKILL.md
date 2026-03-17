@@ -3,9 +3,9 @@ name: nicotine
 description: >
   Smart pre-compact workflow. Extracts important knowledge from the current
   conversation, asks the user what to include, writes the approved summary to
-  a temp file, then triggers automated /compact via Stop hook. After /compact
-  completes, a second Stop hook stage overwrites the session JSONL with the
-  manual summary. Auto-installs hooks on every run using dynamic paths.
+  a temp file, then triggers automated /compact via Stop hook. A detached
+  background process watches for /compact to finish, then immediately overwrites
+  the session JSONL with the manual summary. Auto-installs hooks on every run.
 allowed-tools:
   - Read
   - Write
@@ -30,7 +30,7 @@ hooks_dir = os.path.expanduser('~/.claude/hooks')
 os.makedirs(hooks_dir, exist_ok=True)
 
 # Compute the Claude project dir slug from cwd
-project_slug = cwd.replace('/', '-').lstrip('-')
+project_slug = cwd.replace('/', '-')
 project_dir = os.path.expanduser(f'~/.claude/projects/{project_slug}')
 
 hook_path = os.path.join(hooks_dir, 'pre-compact-hook.sh')
@@ -39,23 +39,37 @@ settings_path = os.path.join(cwd, '.claude', 'settings.local.json')
 # Write hook script with dynamic project_dir
 hook_script = f'''#!/bin/bash
 
-# Stage 1: skill requested /compact
+# Triggered by nicotine skill: type /compact then immediately overwrite JSONL
 if [ -f /tmp/.run_compact ]; then
   rm /tmp/.run_compact
-  touch /tmp/.compact_overwrite_pending
-  sleep 0.5
-  osascript -e 'tell application "System Events"' \\
-            -e 'keystroke "/compact"' \\
-            -e 'delay 0.3' \\
-            -e 'key code 36' \\
-            -e 'end tell'
-  exit 0
-fi
+  PROJECT_DIR="{project_dir}"
 
-# Stage 2: /compact finished — overwrite JSONL with manual summary
-if [ -f /tmp/.compact_overwrite_pending ] && [ -f /tmp/.precompact_summary.md ]; then
-  rm /tmp/.compact_overwrite_pending
-  python3 - << 'PYEOF'
+  (
+    # Record the current most-recent JSONL mtime before /compact runs
+    TARGET=$(ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -1)
+    BEFORE_MTIME=$(stat -f %m "$TARGET" 2>/dev/null || echo 0)
+
+    # Type /compact into the active Claude Code window
+    sleep 0.5
+    osascript -e 'tell application "System Events"' \\
+              -e 'keystroke "/compact"' \\
+              -e 'delay 0.3' \\
+              -e 'key code 36' \\
+              -e 'end tell'
+
+    # Poll until /compact modifies the JSONL (max 60s)
+    for i in $(seq 1 120); do
+      sleep 0.5
+      AFTER_MTIME=$(stat -f %m "$TARGET" 2>/dev/null || echo 0)
+      if [ "$AFTER_MTIME" != "$BEFORE_MTIME" ]; then
+        sleep 1  # let /compact finish writing
+        break
+      fi
+    done
+
+    # Overwrite JSONL with manual summary
+    if [ -f /tmp/.precompact_summary.md ]; then
+      python3 - << 'PYEOF'
 import json, uuid, glob, os
 from datetime import datetime, timezone
 
@@ -92,14 +106,22 @@ with open(target_file, "w") as f:
 
 print(f"JSONL overwritten: {{target_file}}")
 PYEOF
-  rm -f /tmp/.precompact_summary.md
+      rm -f /tmp/.precompact_summary.md
+    fi
+  ) >> /tmp/.nicotine.log 2>&1 &
+  disown
+
+  exit 0
 fi
 '''
 
-with open(hook_path, 'w') as f:
-    f.write(hook_script)
-os.chmod(hook_path, os.stat(hook_path).st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
-print(f"Hook written: {hook_path}")
+if not os.path.exists(hook_path):
+    with open(hook_path, 'w') as f:
+        f.write(hook_script)
+    os.chmod(hook_path, os.stat(hook_path).st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
+    print(f"Hook written: {hook_path}")
+else:
+    print(f"Hook already exists: {hook_path}")
 
 # Register Stop hook in project settings
 if not os.path.exists(settings_path):
@@ -219,6 +241,6 @@ touch /tmp/.run_compact
 
 End your response immediately. The automation takes over:
 
-- **Stop hook stage 1**: sees `/tmp/.run_compact` → deletes it → sets stage 2 flag → types `/compact` + Enter
-- `/compact` runs and clears in-memory context
-- **Stop hook stage 2**: sees stage 2 flag + summary file → overwrites JSONL with manual summary → cleans up
+- **Stop hook**: sees `/tmp/.run_compact` → deletes it → spawns detached background process → exits immediately
+- **Background process**: types `/compact` + Enter → polls JSONL mtime until it changes → overwrites JSONL with manual summary → cleans up
+- Log at `/tmp/.nicotine.log` if you need to debug
