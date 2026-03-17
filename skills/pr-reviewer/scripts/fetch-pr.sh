@@ -28,6 +28,7 @@ fi
 # --- Prepare output directory ---
 rm -rf "$OUTDIR"
 mkdir -p "$OUTDIR"
+: > "$OUTDIR/scratchpad.md"
 
 echo "Fetching PR #${PR_NUMBER}..."
 

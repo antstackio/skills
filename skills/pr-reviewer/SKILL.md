@@ -91,14 +91,53 @@ Only show flags that are triggered. Skip flags that don't apply.
 
 ### Step 5: Run detailed review
 
-For each changed file, apply sub-skill checklists. For every issue:
-1. Record **file path** and **line number** (from the `+` lines in the diff — the line number in the new file)
-2. Assign **severity**: 🔴 Critical, 🟡 Warning, 🔵 Suggestion
-3. Write a **concise comment** — one-liner issue + concrete fix
+**Hard rule: Never skip a line of code.** Every added/modified line in the diff must be reviewed.
 
-Keep comments short and actionable. One issue per comment. No essays.
+#### Chunking strategy
 
-**Large diffs (>2000 lines):** Prioritize files with security, database, or infra changes. Skip generated files (lock files, build output, `.snap` files). Note skipped files in the overall comment.
+Review the diff **one file at a time**. For large diffs (>500 lines), chunk further — review each file in sections of ~200 lines.
+
+For each file chunk:
+1. Read the chunk carefully, line by line
+2. Track findings in a **scratchpad** (a running list in `/tmp/pr-review/scratchpad.md`) before composing inline comments
+3. Move to the next chunk only after the current one is fully reviewed
+
+#### Scratchpad format
+
+Append findings as you go:
+```
+## src/handlers/orderHandler.ts
+- L42: 🟡 complexity ~18 — extract validation
+- L67: 🔵 redundant await — already returns promise
+- L89: 🟡 .find() inside loop — O(n²), use Set
+
+## src/services/userService.ts
+- L12: 🔵 unused import `lodash`
+- L34: 🟡 3 levels of nesting — use early return
+```
+
+#### What to check on every line
+
+For each added/modified line, check:
+- **Imports:** unused imports, missing imports, circular dependencies, `import *` when specific members suffice
+- **Nesting:** unnecessary nesting (>2 levels deep), missing early returns/guard clauses
+- **Control flow:** cognitive complexity, missing else branches, switch without default
+- **Types:** `any` usage, missing return types on exports, non-null assertions (`!`)
+- **Async:** `await` in loops, missing `await`, fire-and-forget promises
+- **Performance:** `.find()`/`.includes()` in loops, unnecessary re-renders, N+1 patterns
+- **Security:** hardcoded secrets, unvalidated input, SQL injection vectors
+- **Error handling:** empty catch blocks, swallowed errors, missing error context
+
+Apply sub-skill checklists on top of these baseline checks.
+
+#### Composing inline comments
+
+After reviewing all chunks for a file, convert scratchpad entries into inline comments:
+1. **file path** and **line number** (from `+` lines in the diff)
+2. **severity**: 🔴 Critical, 🟡 Warning, 🔵 Suggestion
+3. **concise comment** — one-liner issue + concrete fix
+
+One issue per comment. Keep each comment ≤2 lines.
 
 ### Step 6: Calculate token consumption
 
@@ -140,8 +179,7 @@ The **overall comment** (`body`) is a quick summary only — no per-file details
 **Inline comment rules:**
 - `line` = line number in the **new file** (right side of diff, from `+` lines)
 - For multi-line issues, use `start_line` + `line` for a range
-- Keep each comment body ≤2 lines: issue + fix
-- One issue per comment
+- Comments come from the scratchpad built in Step 5
 
 Write the payload and post it:
 ```bash
@@ -182,8 +220,8 @@ To add a new stack (Python, Terraform, Databricks, etc.):
 
 ## Review principles
 
-- **Concise** — 2-3 lines max per inline comment
-- **Actionable** — always suggest a fix
-- **Proportionate** — don't nitpick style when there are security issues
+- **Exhaustive** — every line reviewed, no exceptions. Chunk large diffs, use the scratchpad, but never skip
+- **Concise** — ≤2 lines per inline comment: issue + fix
+- **Actionable** — always suggest a concrete fix
+- **Proportionate** — flag severity accurately; don't nitpick style when there are security issues
 - **Respectful** — acknowledge good patterns, frame constructively
-- **Context-aware** — prototype PRs get lighter scrutiny than production deploys
