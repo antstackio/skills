@@ -62,8 +62,8 @@ Edit files directly. Key patterns:
 ```diff
 - export async function getServerSideProps() {
 + export async function getStaticProps() {
-    return { props: { ... } }
-+ , revalidate: 60 }
+-   return { props: { ... } }
++   return { props: { ... }, revalidate: 60 }
   }
 ```
 
