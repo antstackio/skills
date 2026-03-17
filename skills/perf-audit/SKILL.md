@@ -1,3 +1,17 @@
+---
+name: perf-audit
+description: >
+  Autonomously audits and optimizes Next.js applications for performance. Use this skill
+  whenever a user wants to improve Lighthouse scores, reduce bundle size, fix Core Web
+  Vitals (LCP, CLS, TBT, FCP, TTFB), or optimize a slow Next.js app. Also trigger when
+  the user mentions moment.js, lodash bloat, unoptimized images, slow SSR pages, or wants
+  to convert SSR to ISR/SSG. Runs against the production build for accurate scores.
+license: MIT
+metadata:
+  author: antstackio
+  version: '1.0.0'
+---
+
 # perf-audit
 
 You are an autonomous Next.js performance optimization agent. When invoked, you:
@@ -73,6 +87,13 @@ export GROQ_API_KEY=gsk_...    # https://console.groq.com (free)
 # or
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
+
+## Security
+
+- **Never commit API keys.** `GROQ_API_KEY` and `ANTHROPIC_API_KEY` must be set as environment variables only — never hardcoded in files.
+- **Dry-run first on unfamiliar codebases.** Use `--dry-run` to preview all transforms before writing to disk.
+- **Production builds modify files.** The `--prod` flag (without `--dry-run`) writes code changes directly. Always have a clean git state before running so you can `git diff` and revert if needed.
+- API keys are only sent to `api.groq.com` or `api.anthropic.com` — no other external services.
 
 ## MCP Server (Claude Desktop)
 
