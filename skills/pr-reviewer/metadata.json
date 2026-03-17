@@ -1,0 +1,15 @@
+{
+  "name": "pr-reviewer",
+  "description": "Review pull requests from GitHub using gh CLI with structured checklists, inline code comments, and sub-skill checks for TypeScript, AWS SAM, DynamoDB, SQL, and more.",
+  "tags": [
+    "code-review",
+    "pull-request",
+    "github",
+    "typescript",
+    "aws",
+    "dynamodb",
+    "sql",
+    "security",
+    "developer-workflow"
+  ]
+}
