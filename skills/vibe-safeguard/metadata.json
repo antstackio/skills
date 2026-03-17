@@ -1,0 +1,248 @@
+{
+  "name": "vibe-safeguard",
+  "display_name": "Vibe Safeguard",
+  "version": "4.0.0",
+  "description": "A background intelligence layer for serious vibe coders. Wraps around AI-assisted build sessions with adaptive mode switching, intelligent overload detection, visual code mapping, token-aware prompt optimization, and a clean mode handoff system — preventing context overload before it happens.",
+  "author": {
+    "name": "Ranajoy Sharma",
+    "url": "https://ranajoydesign.com"
+  },
+  "license": "MIT",
+  "category": "developer-tools",
+  "tags": [
+    "vibe-coding",
+    "ai-coding",
+    "prompt-engineering",
+    "token-optimization",
+    "code-structure",
+    "ux-guardrails",
+    "debugging",
+    "cursor",
+    "lovable",
+    "replit",
+    "no-code",
+    "architecture",
+    "developer-tools",
+    "agent-skills",
+    "ai-development",
+    "developer-productivity",
+    "ai-workflows",
+    "light-build",
+    "mode-handoff",
+    "step-by-step-build",
+    "adaptive-system",
+    "overload-prevention",
+    "visual-code-mapping",
+    "cognitive-design"
+  ],
+  "activation_commands": [
+    "vibeguide",
+    "vibecheck",
+    "vibeguard",
+    "vibelight",
+    "vibedebug"
+  ],
+  "override_command": "skip guardrails",
+  "trigger_phrases": [
+    "build me",
+    "help me build",
+    "I want to build",
+    "I want to make",
+    "create a",
+    "write a prompt for",
+    "what does this code do",
+    "explain this code",
+    "optimize my prompt",
+    "I'm using Cursor",
+    "paste into Lovable",
+    "vibe coding",
+    "it's not working",
+    "error",
+    "bug",
+    "fix this",
+    "why is this broken",
+    "not working",
+    "stuck",
+    "slow",
+    "retry",
+    "not loading",
+    "generated code",
+    "vibeguide",
+    "vibecheck",
+    "vibeguard",
+    "vibelight",
+    "vibedebug"
+  ],
+  "modes": [
+    {
+      "id": "intercept",
+      "label": "INTERCEPT",
+      "description": "Pre-build gate. Clarifies idea and auto-generates architecture. Runs once per idea only.",
+      "triggers": ["idea described", "vibeguide", "vibeguard"]
+    },
+    {
+      "id": "wrap",
+      "label": "WRAP",
+      "description": "Prompt engineering layer. Structures, compresses, and stages prompts. Token intelligence active. Tool suggestion included. Runs once per prompt.",
+      "triggers": ["write a prompt", "help me build", "after INTERCEPT"]
+    },
+    {
+      "id": "mode-handoff",
+      "label": "MODE HANDOFF",
+      "description": "Clean boundary after WRAP. Presents external tool vs Claude build choice. All systems pause until user responds. No auto-continuation.",
+      "triggers": ["after WRAP always"]
+    },
+    {
+      "id": "auto-light-trigger",
+      "label": "AUTO LIGHT TRIGGER",
+      "description": "Intelligent overload detection. Fires before generation when complexity spike, retry loop, stuck signal, or token overload detected. Offers LIGHT BUILD MODE proactively.",
+      "triggers": ["stuck", "slow", "retry", "not loading", "multi-screen build", "SaaS", "dashboard", "loop detected", "token overload"]
+    },
+    {
+      "id": "light-build",
+      "label": "LIGHT BUILD MODE",
+      "description": "Controlled step-by-step builder. Heavy guardrails suspended. Structure awareness, micro UX layer, and code clarity remain active. One component per response. Waits for confirmation.",
+      "triggers": ["user picks 'build here' at handoff", "vibelight", "auto-light-trigger fires and user confirms"]
+    },
+    {
+      "id": "decode",
+      "label": "DECODE",
+      "description": "Visual code understanding. Adds semantic structural labels inside JSX/HTML. Generates file tree + plain-English summary. Designed for non-coders.",
+      "triggers": ["code pasted", "what is this", "explain this", "walk me through"]
+    },
+    {
+      "id": "debug",
+      "label": "DEBUG",
+      "description": "Error detection and fix. Identifies issue category, explains plainly, generates fix or structured re-prompt. Optionally offers LIGHT BUILD MODE rebuild.",
+      "triggers": ["error", "bug", "not working", "fix this", "why is this broken", "vibedebug"]
+    }
+  ],
+  "capabilities": [
+    "idea-interrogation",
+    "architecture-auto-detection",
+    "prompt-structuring",
+    "token-optimization",
+    "token-intelligence",
+    "prompt-splitting",
+    "context-bloat-detection",
+    "mode-handoff",
+    "adaptive-mode-switching",
+    "auto-light-trigger",
+    "light-build-mode",
+    "step-by-step-generation",
+    "micro-ux-layer",
+    "tool-suggestions",
+    "visual-code-mapping",
+    "structural-code-labeling",
+    "ux-validation",
+    "ux-law-enforcement",
+    "cognitive-design-layer",
+    "debug-detection",
+    "loop-detection",
+    "guardrail-gating",
+    "loop-safety",
+    "manual-activation-commands",
+    "intelligent-guardrails"
+  ],
+  "token_budget": {
+    "simple_build": { "target": 400, "hard_limit": 600 },
+    "medium_build": { "target": 600, "hard_limit": 800 },
+    "complex_build": { "target": 700, "hard_limit": 1000 }
+  },
+  "auto_light_triggers": [
+    "user says: stuck / slow / retry / not loading",
+    "multi-screen app detected",
+    "SaaS or dashboard build",
+    "same request repeated 2+ times",
+    "prompt exceeds token hard limit",
+    "generated code would exceed 200 lines or 5+ components"
+  ],
+  "micro_ux_laws_in_light_mode": [
+    "Fitts's Law — touch targets minimum 44px",
+    "Hick's Law — navigation choices maximum 7",
+    "Visual Hierarchy — primary action must be dominant",
+    "Contrast — text minimum 4.5:1 ratio"
+  ],
+  "cognitive_design_layer": [
+    "Cognitive Load",
+    "Hick's Law",
+    "Von Restorff Effect",
+    "Occam's Razor",
+    "Visual Hierarchy",
+    "Fitts's Law"
+  ],
+  "tool_suggestions": {
+    "ui_heavy": ["Lovable", "Framer"],
+    "full_stack": ["Cursor"],
+    "logic_scripts_ai": ["Claude"],
+    "automation": ["n8n", "Make"],
+    "quick_prototype": ["Replit"]
+  },
+  "loop_prevention": {
+    "intercept_questions": "once per idea",
+    "architecture_map": "once per idea",
+    "token_optimization": "once per prompt",
+    "context_bloat_warning": "once per session",
+    "micro_ux_notes": "once per component",
+    "cognitive_design_notes": "once per session",
+    "debug_diagnosis": "once per error",
+    "auto_light_offer": "once per request"
+  },
+  "compatible_tools": [
+    "Claude",
+    "ChatGPT",
+    "Cursor",
+    "GitHub Copilot",
+    "Replit",
+    "Lovable",
+    "Framer",
+    "n8n",
+    "Any skills.sh-compatible agent"
+  ],
+  "related_skills": [
+    "assumption-breaker"
+  ],
+  "files": {
+    "skill": "SKILL.md",
+    "readme": "README.md",
+    "references": [
+      "references/prompt-templates.md",
+      "references/architecture-patterns.md",
+      "references/ux-rules.md"
+    ]
+  },
+  "schema_version": "1.0",
+  "changelog": {
+    "4.0.0": [
+      "Added AUTO LIGHT TRIGGER — intelligent overload detection, proactive mode switching",
+      "Added loop detection — same request 2+ times triggers LIGHT MODE offer",
+      "Added complexity spike detection — SaaS/dashboard/multi-screen auto-triggers",
+      "LIGHT BUILD MODE upgraded — micro UX layer remains active (Fitts, Hick, hierarchy, contrast)",
+      "DECODE upgraded — visual structural labeling inside JSX/HTML, not just file tree",
+      "Token intelligence upgraded — proactive compressed version offer when heavy",
+      "Added vibedebug command",
+      "Cognitive design layer formalized — Cognitive Load, Occam's Razor, Von Restorff",
+      "Added Occam's Razor to active principles",
+      "Validation simulation added to SKILL.md with both flow paths",
+      "Metadata expanded with auto_light_triggers, micro_ux_laws_in_light_mode, cognitive_design_layer"
+    ],
+    "3.0.0": [
+      "Added MODE HANDOFF — clean stop point after WRAP",
+      "Added LIGHT BUILD MODE",
+      "Added vibelight command",
+      "Added tool suggestion layer",
+      "UX guardrails made opt-in only",
+      "DEBUG mode expanded with rebuild offer"
+    ],
+    "2.0.0": [
+      "Added DEBUG mode",
+      "Added vibeguide, vibecheck, vibeguard commands",
+      "Token budget system with hard limits",
+      "Context bloat detection",
+      "UX law enforcement"
+    ],
+    "1.0.0": [
+      "Initial release"
+    ]
+  }
+}
