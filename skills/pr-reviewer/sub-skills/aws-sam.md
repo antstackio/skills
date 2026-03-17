@@ -9,7 +9,7 @@ Applies to: `template.yaml`, `template.yml`, `samconfig.toml`, `samconfig.yaml`,
 
 ### Memory & Timeout Configuration
 - Every Lambda must have explicit `MemorySize` and `Timeout` — never rely on defaults (128MB / 3s). Defaults are almost always wrong for production.
-- Flag `Timeout` > 60s for API Gateway-backed Lambdas (API GW has a 29s hard limit)
+- 🔴 Critical: Flag `Timeout` > 29s for API Gateway-backed Lambdas — API GW has a 29s hard limit and will cut off the response regardless of Lambda timeout
 - Flag `MemorySize` < 256MB for Node.js Lambdas doing any non-trivial work (below this, you get proportionally less CPU)
 - Flag `Timeout` set very high (>300s) without a corresponding DLQ — if it fails after 5 min you want to know
 - 🔵 Suggestion: Memory between 512MB-1024MB is the sweet spot for most Node.js Lambdas
@@ -45,30 +45,6 @@ Applies to: `template.yaml`, `template.yml`, `samconfig.toml`, `samconfig.yaml`,
 - 🟡 Warning: Flag missing resource ARN constraints — actions should target specific resources, not `*`
 - 🔵 Suggestion: Use `!Sub` or `!Ref` to construct resource ARNs dynamically rather than hardcoding
 
-**Example anti-pattern:**
-```yaml
-# ❌ Way too broad
-Policies:
-  - Statement:
-      - Effect: Allow
-        Action: "dynamodb:*"
-        Resource: "*"
-```
-
-```yaml
-# ✅ Scoped to what's needed
-Policies:
-  - Statement:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:PutItem
-          - dynamodb:Query
-        Resource:
-          - !GetAtt OrdersTable.Arn
-          - !Sub "${OrdersTable.Arn}/index/*"
-```
-
 ### Managed Policies
 - Flag use of AWS-managed `AdministratorAccess` or `PowerUserAccess` on any Lambda
 - Prefer inline policies scoped to the specific function over shared managed policies
@@ -94,18 +70,7 @@ Policies:
 
 ## DynamoDB Tables
 
-### Table Design
-- Flag tables without a defined `BillingMode` (defaults to provisioned, which can be expensive if untuned)
-- Flag provisioned tables without auto-scaling
-- Flag tables missing `PointInTimeRecoverySpecification: PointInTimeRecoveryEnabled: true`
-- Flag tables without `SSESpecification` for encryption
-- Check GSI projections — `ALL` projection on large tables wastes storage and write capacity
-
-### Keys & Indexes
-- Flag sort key design: is the sort key enabling the required query patterns?
-- Flag GSIs that duplicate the table's primary key
-- Flag tables with >5 GSIs (hard limit, and each costs write capacity)
-- Flag missing GSIs for known query patterns mentioned in the PR
+For detailed DynamoDB checks (key design, GSIs, client code, capacity), see `sub-skills/dynamodb.md`. Only flag DynamoDB issues from this sub-skill if `dynamodb.md` is not loaded.
 
 ---
 

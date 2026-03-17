@@ -9,7 +9,7 @@ Applies to: files referencing DynamoDB table definitions in SAM/CloudFormation (
 
 ### Key Schema
 - 🔴 Critical: Changing partition key (PK) or sort key (SK) on an existing table — this requires table recreation and full data migration. There is no in-place key change in DynamoDB.
-- 🔴 Critical: Partition key with low cardinality (e.g., `status`, `type`, `boolean`) — creates hot partitions and throttling
+- 🔴 Critical: Partition key with low cardinality (e.g., `status`, `type`, `boolean` — fewer than ~100 distinct values across millions of items) — creates hot partitions and throttling
 - 🟡 Warning: Sort key not leveraging hierarchical or composite patterns when the access patterns call for it (e.g., using `SK: timestamp` when `SK: STATUS#TIMESTAMP` would support multiple query patterns)
 - Flag tables without a sort key when the access patterns clearly need range queries
 
@@ -25,9 +25,9 @@ Applies to: files referencing DynamoDB table definitions in SAM/CloudFormation (
 - 🟡 Warning: Adding a GSI on a large existing table — DynamoDB backfills asynchronously, consumes write capacity, and can take hours
 - Flag GSIs where the projected key schema doesn't match the intended query pattern
 - Flag GSI with `ProjectionType: ALL` on large items — wastes storage and write throughput; use `KEYS_ONLY` or `INCLUDE` with specific attributes
-- Flag tables with >5 GSIs — this is the hard limit. Plan GSI usage carefully
+- Flag tables with >20 GSIs — this is the hard limit per table. Plan GSI usage carefully
 - Flag GSI partition key with low cardinality (same hot-partition risk as the base table)
-- Flag sparse GSIs being used correctly — if only some items have the GSI key attributes, only those items are indexed (this can be a feature, but verify it's intentional)
+- Flag sparse GSIs — if only some items have the GSI key attributes, only those items are indexed. Check if the GSI key attribute is conditionally present by design (filtering pattern) or accidentally missing on some writes
 
 ### Local Secondary Indexes (LSIs)
 - 🔴 Critical: Attempting to add an LSI to an existing table — LSIs can only be defined at table creation time
@@ -48,9 +48,6 @@ Applies to: files referencing DynamoDB table definitions in SAM/CloudFormation (
 - Flag GSIs on provisioned tables without their own auto-scaling — GSI throttling throttles the base table too
 - Flag GSI write capacity significantly lower than base table write capacity when the GSI key is present on most items
 
-### Reserved Capacity
-- ℹ️ Info: For steady high-throughput tables, mention reserved capacity as a cost optimization (but this is operational, not a code change)
-
 ---
 
 ## DynamoDB Client Code
@@ -67,7 +64,7 @@ Applies to: files referencing DynamoDB table definitions in SAM/CloudFormation (
 - Flag `PutItem` used where `UpdateItem` would be more appropriate (PutItem overwrites the entire item)
 - Flag `UpdateItem` without a `ConditionExpression` for optimistic locking when concurrent writes are possible
 - Flag `BatchWriteItem` without retry logic for `UnprocessedItems` — DynamoDB can return unprocessed items on throttling
-- Flag `TransactWriteItems` with >100 items — that's the hard limit (25 per transaction, but check if they're batching)
+- Flag `TransactWriteItems` with >25 items — the hard limit is 25 items per `TransactWriteItems` call
 - Flag writes that include the full item when only one attribute is changing (use UpdateExpression)
 
 ### Error Handling
@@ -79,7 +76,7 @@ Applies to: files referencing DynamoDB table definitions in SAM/CloudFormation (
 ### Batch Operations
 - Flag `BatchGetItem` without handling `UnprocessedKeys` in the response
 - Flag `BatchWriteItem` without handling `UnprocessedItems` in the response
-- Flag batch operations on >100 items without chunking (BatchGetItem limit: 100, BatchWriteItem limit: 25)
+- Flag batch operations exceeding per-call limits without chunking (BatchGetItem: 100 keys, BatchWriteItem: 25 requests)
 
 ---
 

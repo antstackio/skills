@@ -1,31 +1,12 @@
-# PR Review Checklist Template
+# PR Review Checklist
 
-This template is used to produce the overall PR comment. It gets merged with the repo's PR template checklist (if one exists).
+Internal checklist used during Step 5 to guide the review. Findings are posted as inline comments, not in the overall comment.
 
 ## Merge rules
 
-1. If the repo has a PR template with checklist items, those go under **"Team Checklist"** first
-2. The sections below follow, but skip any item that duplicates a team checklist item
-3. **Only include sections that have at least one finding** (❌ or ⚠️). Skip sections where everything passes — keep the comment short.
-
-## Status markers
-
-- ✅ Pass
-- ❌ Fail (include severity + file:line)
-- ⚠️ Needs attention
-- ➖ N/A
-
----
-
-## Flags section (always include)
-
-Compute and display at the very top:
-
-```
-📏 **Size:** {XS|S|M|L|XL} ({lines} lines) | 🧠 **Complexity:** {functions flagged} | 🗄️ **DB Changes** | ☁️ **Infra Changes** | 📦 **Deps Changed** | 🔐 **Security** | 🧪 **Missing Tests** | 🔄 **Breaking**
-```
-
-Only show flags that are triggered. Skip flags that don't apply.
+1. If the repo has a PR template with checklist items, extract them and review against those first
+2. Then walk through the sections below, skipping any item the team checklist already covers (same category + same scope). When in doubt, check both.
+3. Only post inline comments for items that fail — skip items that pass
 
 ---
 
@@ -92,13 +73,3 @@ Only show flags that are triggered. Skip flags that don't apply.
 - Public APIs have JSDoc/TSDoc
 - README updated if behavior changed
 - New env vars documented
-
----
-
-## Summary section (always include)
-
-```
-🔴 {n} critical | 🟡 {n} warnings | 🔵 {n} suggestions
-
-**Risk:** {Low|Medium|High} — {one sentence explanation}
-```

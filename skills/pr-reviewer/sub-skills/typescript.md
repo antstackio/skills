@@ -8,137 +8,50 @@ Applies to: `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.mjs`, `*.cjs`, `package.json`, 
 ## Code Quality Checks
 
 ### Cognitive Complexity
-Flag functions where nested control flow makes the code hard to follow. Each of these increments complexity: `if`, `else if`, `else`, `switch`, `for`, `while`, `do-while`, `catch`, ternary, logical operators (`&&`, `||`) when used for branching, and nested functions/callbacks. Nesting multiplies the penalty — a nested `if` inside a `for` counts more than a flat `if`.
+Estimate complexity by counting control flow structures in each function:
+
+**Counting method:**
+1. +1 for each: `if`, `else if`, `else`, `switch`, `for`, `while`, `do-while`, `catch`, ternary (`?:`), `&&`/`||` used for branching
+2. +1 nesting penalty for each level of nesting (a `for` inside an `if` inside a `try` = +2 nesting penalty on the `for`)
+3. Sum = estimated cognitive complexity for that function
 
 **Thresholds:**
-- 🔵 Suggestion: complexity 10-15 → consider simplification
-- 🟡 Warning: complexity 15-25 → should refactor
-- 🔴 Critical: complexity >25 → must refactor before merge
+- 🔵 Suggestion: complexity 10-15
+- 🟡 Warning: complexity 15-25
+- 🔴 Critical: complexity >25
 
-**Common fixes:**
-- Extract nested logic into well-named helper functions
-- Replace complex conditionals with early returns (guard clauses)
-- Replace switch statements with lookup objects/maps
-- Use polymorphism instead of type-checking branches
-
-**Example anti-pattern:**
-```typescript
-// ❌ Cognitive complexity ~18
-async function processOrder(order: Order) {
-  if (order.items.length > 0) {
-    for (const item of order.items) {
-      if (item.type === 'physical') {
-        if (item.weight > 10) {
-          if (item.destination === 'international') {
-            // deeply nested logic...
-          } else {
-            // more nested logic...
-          }
-        }
-      } else if (item.type === 'digital') {
-        // another branch...
-      }
-    }
-  }
-}
-```
-
-```typescript
-// ✅ Refactored — flat, readable
-async function processOrder(order: Order) {
-  if (order.items.length === 0) return;
-  
-  for (const item of order.items) {
-    await processOrderItem(item);
-  }
-}
-
-function processOrderItem(item: OrderItem) {
-  const handler = itemHandlers[item.type];
-  if (!handler) throw new UnknownItemTypeError(item.type);
-  return handler(item);
-}
-```
+**Common fixes:** extract nested logic into helpers, use early returns/guard clauses, replace switch with lookup maps
 
 ### Time Complexity
-Flag algorithms that are unnecessarily slow for the data size they operate on.
-
-**Things to watch for:**
-- Nested loops over the same or related collections → O(n²) or worse
-- `.find()` or `.includes()` inside a loop → O(n²), use a Set or Map instead
+Flag algorithms that are unnecessarily slow:
+- Nested loops over same/related collections → O(n²)
+- `.find()`, `.includes()`, `.indexOf()` inside a loop → O(n²), use Set/Map
 - Repeated array scans that could be a single pass
-- Sorting where a single-pass min/max would suffice
-- Recursive functions without memoization that have overlapping subproblems
-
-**Example anti-pattern:**
-```typescript
-// ❌ O(n²) — find inside loop
-const duplicates = items.filter((item, i) =>
-  items.findIndex(other => other.id === item.id) !== i
-);
-```
-
-```typescript
-// ✅ O(n) — Set-based
-const seen = new Set<string>();
-const duplicates = items.filter(item => {
-  if (seen.has(item.id)) return true;
-  seen.add(item.id);
-  return false;
-});
-```
+- Sorting where single-pass min/max suffices
+- Recursive functions without memoization with overlapping subproblems
 
 ### Simplification Opportunities
-Flag code that can be expressed more concisely without sacrificing readability.
-
-**Patterns to catch:**
-- `if (condition) { return true; } else { return false; }` → `return condition;`
-- `if (x !== null && x !== undefined)` → optional chaining or nullish coalescing
-- Manual array transformations that could use `.map()`, `.filter()`, `.reduce()`
-- Verbose null checks when `??` or `?.` would work
+- `if (cond) { return true; } else { return false; }` → `return cond;`
+- Verbose null checks → `??` or `?.`
+- Manual loops → `.map()`, `.filter()`, `.reduce()`
 - Redundant `async/await` on already-returned promises
-- `new Promise((resolve) => resolve(value))` → `Promise.resolve(value)`
-- Spread-then-reassign patterns that could be a single object literal
-- Redundant type assertions when TypeScript can infer the type
+- `new Promise((resolve) => resolve(val))` → `Promise.resolve(val)`
+- Redundant type assertions when TS can infer
 
 ### Async/Await Patterns
-**Anti-patterns to flag:**
 - `await` inside a `for` loop when iterations are independent → use `Promise.all`
 - Missing `await` on async calls (fire-and-forget without intent)
 - `async` keyword on functions that never `await`
-- Sequential awaits on independent operations
+- Sequential awaits on independent operations → `Promise.all`
 - Missing error handling on promises (no `.catch()` and no try/catch)
-- Using `.then()` chains mixed with `async/await` in the same function
-
-**Example:**
-```typescript
-// ❌ Sequential — takes sum of all durations
-for (const id of userIds) {
-  const user = await getUser(id);
-  results.push(user);
-}
-```
-
-```typescript
-// ✅ Concurrent — takes max of all durations
-const results = await Promise.all(userIds.map(id => getUser(id)));
-
-// ✅ With concurrency limit for large batches
-import pLimit from 'p-limit';
-const limit = pLimit(10);
-const results = await Promise.all(
-  userIds.map(id => limit(() => getUser(id)))
-);
-```
+- Mixing `.then()` chains with `async/await` in the same function
 
 ### Error Handling
-**Check for:**
 - Empty `catch` blocks that silently swallow errors
 - `catch (e) { throw e; }` — pointless rethrow
-- Catching generic `Error` when specific error types should be handled differently
+- Catching generic `Error` when specific types should differ
 - Missing error handling on external calls (API, DB, file system)
-- Error messages that don't include enough context for debugging
-- `console.log` for error reporting instead of a proper logger
+- Error messages missing context for debugging
 
 ### TypeScript-Specific
 **Check for:**

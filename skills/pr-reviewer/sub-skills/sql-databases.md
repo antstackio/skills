@@ -11,7 +11,7 @@ Applies to: `*.sql`, `*migration*`, `*schema*`, `*seed*`, `*.prisma`, `*knexfile
 - 🔴 Critical: `DROP TABLE` or `DROP COLUMN` without confirmation that data has been migrated or is no longer needed
 - 🔴 Critical: `TRUNCATE TABLE` in a migration — this should never be in production migrations
 - 🔴 Critical: Column type changes that risk data loss (e.g., `VARCHAR(255)` → `VARCHAR(50)`, `BIGINT` → `INT`, `DECIMAL` precision reduction)
-- 🟡 Warning: `ALTER TABLE` on large tables — may lock the table. Consider online DDL tools like `pt-online-schema-change` (MySQL) or check if the operation is non-blocking in your Postgres version
+- 🟡 Warning: `ALTER TABLE` on tables with >1M rows — may lock the table for extended periods. For MySQL, consider `pt-online-schema-change` or `gh-ost`. For Postgres 11+, `ADD COLUMN` with a non-volatile `DEFAULT` is non-blocking, but `ALTER COLUMN TYPE` still requires a full table rewrite
 - 🟡 Warning: `NOT NULL` constraint added to existing column without a `DEFAULT` — fails for existing rows with NULL values
 - 🟡 Warning: Renaming columns or tables — any code deployed before or during the migration will break. Use expand-and-contract pattern instead
 
@@ -79,7 +79,7 @@ Flag operations that acquire heavy locks on production tables:
 ### Performance
 - 🟡 Warning: `SELECT *` — select only needed columns, especially with large TEXT/BLOB columns
 - 🟡 Warning: Queries without `LIMIT` that could return unbounded results
-- 🟡 Warning: `LIKE '%search%'` — leading wildcard prevents index usage. Consider full-text search instead
+- 🟡 Warning: `LIKE '%search%'` — leading wildcard prevents index usage. Suggest full-text search indexes (Postgres `tsvector`/`GIN`, MySQL `FULLTEXT`) or application-level search (Elasticsearch, Typesense)
 - Flag correlated subqueries that could be rewritten as JOINs
 - Flag missing `WHERE` clauses on `UPDATE` and `DELETE` — extremely dangerous
 - Flag N+1 patterns: a query inside a loop. Use `JOIN`, subquery, or `WHERE IN (...)` instead
@@ -96,35 +96,16 @@ Flag operations that acquire heavy locks on production tables:
 
 ## ORM-Specific Checks
 
-### Prisma
-- Flag `@default(autoincrement())` on non-primary-key fields
-- Flag missing `@@index` or `@index` for fields used in `where` clauses
-- Flag `@relation` changes that could break existing data
-- Flag `@@map` / `@map` inconsistencies between Prisma model names and DB table/column names
-- Flag optional (`?`) to required conversion without a default or data migration
-- Flag `prisma.$queryRaw` — verify parameterized and not string-concatenated
-- Flag missing `prisma.$disconnect()` in Lambda handlers (connection leak)
-
-### TypeORM
-- Flag `synchronize: true` in production config — auto-syncs schema, can drop columns
-- Flag eager relations on entities used in list queries (N+1 risk)
-- Flag missing migration for schema changes (relying on synchronize)
-- Flag `getRepository()` usage in newer TypeORM — use `DataSource` pattern
-
-### Knex
-- Flag missing `.transacting(trx)` on multi-query operations
-- Flag `.raw()` calls with string interpolation instead of bindings
-- Flag missing connection pool configuration (`pool.min`, `pool.max`)
-
-### Drizzle
-- Flag schema changes without corresponding migration via `drizzle-kit`
-- Flag missing `drizzle-kit push` vs `generate` awareness (push is for dev, generate for production)
+### ORM-Specific (apply only to the ORM in use)
+- **Prisma:** Flag missing `@@index` for `where` fields, `$queryRaw` with string concat, optional→required without migration, missing `$disconnect()` in Lambda
+- **TypeORM:** Flag `synchronize: true` in production, eager relations in list queries (N+1), missing migrations
+- **Knex:** Flag missing `.transacting(trx)` on multi-query ops, `.raw()` with string interpolation instead of bindings
+- **Drizzle:** Flag schema changes without `drizzle-kit generate` migration
 
 ### General ORM
-- Flag auto-generated migration files that haven't been reviewed (ORMs sometimes generate unexpected changes)
+- Flag auto-generated migration files that haven't been reviewed
 - Flag lazy-loaded relations in hot paths (N+1 risk)
-- Flag missing cascade settings on relations
-- Flag ORM queries that fetch all columns when only a few are needed (select projection)
+- Flag ORM queries that fetch all columns when only a few are needed
 
 ---
 
@@ -156,7 +137,6 @@ Flag operations that acquire heavy locks on production tables:
 ### Lambda + RDS
 - 🟡 Warning: Direct RDS connections from Lambda without RDS Proxy or connection pooling — each Lambda invocation can open a new connection, exhausting `max_connections`
 - Flag connection creation inside the handler (should be outside handler for reuse across warm invocations)
-- Flag missing `callbackWaitsForEmptyEventLoop = false` in Node.js Lambda (keeps connection alive for reuse)
 - Flag missing connection timeout settings
 
 ### Connection Pools

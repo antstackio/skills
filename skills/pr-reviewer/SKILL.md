@@ -11,31 +11,7 @@ Review pull requests via `gh` CLI. Fetches the diff, reads the repo's PR templat
 
 ## Prerequisites
 
-### 1. Check if `gh` CLI is installed
-
-```bash
-command -v gh
-```
-
-- If **not installed**, detect the platform and install it:
-  - **macOS**: `brew install gh`
-  - **Debian/Ubuntu**: `sudo apt install gh` (or follow https://github.com/cli/cli/blob/trunk/docs/install_linux.md)
-  - **Windows (WSL)**: `sudo apt install gh`
-  - **Other**: Tell the user to install from https://cli.github.com/ and retry
-- If the install command fails (e.g. Homebrew or apt not available), provide the manual install link and stop.
-
-### 2. Check if `gh` CLI is authenticated
-
-```bash
-gh auth status
-```
-
-- If **not authenticated**, prompt the user to run `gh auth login` and walk them through it:
-  1. Run `gh auth login`
-  2. Select **GitHub.com** (or GitHub Enterprise if applicable)
-  3. Choose authentication method (browser or token)
-  4. Confirm scopes include `repo` and `read:org`
-- After login completes, re-run `gh auth status` to verify before proceeding.
+Verify `gh` CLI is installed (`command -v gh`) and authenticated (`gh auth status`). If either check fails, tell the user what to install/run and stop.
 
 ---
 
@@ -50,7 +26,7 @@ The user provides one of:
 
 Run the fetch script to gather all PR data in parallel:
 ```bash
-.claude/pr-reviewer/scripts/fetch-pr.sh <PR_NUMBER_OR_URL>
+scripts/fetch-pr.sh <PR_NUMBER_OR_URL>
 ```
 
 This creates `/tmp/pr-review/` with:
@@ -67,52 +43,43 @@ cat /tmp/pr-review/diff.txt
 cat /tmp/pr-review/changed-files.txt
 ```
 
-### Step 2: Merge PR template with review checklist
+### Step 2: Build review checklist
 
-Read the fetched PR template:
+Read the fetched PR template and the skill's checklist:
 ```bash
 cat /tmp/pr-review/pr-template.md
 ```
 
+Build a combined internal checklist to guide Step 5. This checklist is NOT posted — it drives what you look for during review.
+
 **Merging logic:**
-- If a PR template has checklist items (`- [ ]`), extract them
-- Group by their heading/category if headings exist
-- Merge with the skill's checklist from `checklists/review-template.md`:
-  - Template items go first under a **"Team Checklist"** section
-  - Skill items follow, but skip any that duplicate a template item (match by meaning, not exact wording)
+- If a PR template has checklist items (`- [ ]`), extract them and include them in the internal checklist
+- Merge with the skill's checklist from `checklists/review-template.md`, skipping any item the template already covers (same category + same scope). When in doubt, keep both.
 - If no PR template exists (`NO_PR_TEMPLATE`), use only the skill's checklist
 
 ### Step 3: Classify changed files and load sub-skills
 
-Classify each changed file and read ONLY the relevant sub-skill files:
+Classify each changed file by matching file path patterns and read ONLY the relevant sub-skill files:
 
 | File pattern | Sub-skill |
 |---|---|
-| `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.config.*`, `*.test.*`, `*.spec.*`, `package.json`, `tsconfig.json` | `sub-skills/typescript.md` |
-| `template.yaml`, `template.yml`, `samconfig.*`, `serverless.yml`, `*.yaml`/`*.yml` (CloudFormation) | `sub-skills/aws-sam.md` |
-| DynamoDB client code or table defs in CFN/SAM | `sub-skills/dynamodb.md` |
-| `*.sql`, `*migration*`, `*schema*`, `*.prisma`, `*knexfile*`, `*drizzle*`, `*typeorm*`, RDS/Aurora in CFN | `sub-skills/sql-databases.md` |
-| Everything else, `Dockerfile`, `docker-compose*` | `sub-skills/general.md` |
+| `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.mjs`, `*.cjs`, `*.config.ts`, `*.config.js`, `*.test.*`, `*.spec.*`, `package.json`, `tsconfig.json` | `sub-skills/typescript.md` |
+| `template.yaml`, `template.yml`, `samconfig.*`, `serverless.yml`, `serverless.ts`, `cdk.json`, `*.template.json`, `*.template.yaml`, any YAML/JSON containing `AWSTemplateFormatVersion` or `Transform: AWS::Serverless` | `sub-skills/aws-sam.md` |
+| Files importing from `@aws-sdk/lib-dynamodb`, `@aws-sdk/client-dynamodb`, or using `DynamoDBClient`, `DocumentClient`, `DynamoDB.DocumentClient`; also YAML/JSON containing `AWS::DynamoDB::Table` or `AWS::Serverless::SimpleTable` | `sub-skills/dynamodb.md` |
+| `*.sql`, `*migration*`, `*schema*`, `*seed*`, `*.prisma`, `*knexfile*`, `*drizzle*`, `*typeorm*`, `*sequelize*`; also files importing from `knex`, `prisma`, `typeorm`, `drizzle-orm`, `sequelize`; also YAML/JSON containing `AWS::RDS::` or `AWS::Aurora::` | `sub-skills/sql-databases.md` |
+| All files (baseline layer): `Dockerfile`, `docker-compose*`, `.env*`, `.gitignore`, and any file not covered above | `sub-skills/general.md` |
 
-A TypeScript file with DynamoDB operations loads both `typescript.md` and `dynamodb.md`. Same for SQL/ORM code. Multiple sub-skills can apply to one file.
-
-Available sub-skills:
-- `sub-skills/typescript.md` — TS/JS code quality, async patterns, type safety
-- `sub-skills/aws-sam.md` — SAM, CloudFormation, serverless infra
-- `sub-skills/dynamodb.md` — DynamoDB table design, client code, capacity
-- `sub-skills/sql-databases.md` — SQL migrations, ORMs, RDS/Aurora, queries
-- `sub-skills/general.md` — Security, error handling, logging, dependencies
-- `sub-skills/token-consumption.md` — Token usage estimation (always loaded, runs after Step 6)
+Multiple sub-skills can apply to one file. A TypeScript file importing DynamoDB SDK loads both `typescript.md` and `dynamodb.md`.
 
 ### Step 4: Compute PR flags
 
-Before detailed review, compute flags. These go at the top of the overall comment for instant visibility.
+Before detailed review, compute flags from the diff. These go at the top of the overall comment.
 
 | Flag | Condition | Label |
 |---|---|---|
 | 📏 PR Size | additions + deletions | `XS` (<50), `S` (<200), `M` (<500), `L` (<1000), `XL` (≥1000) |
-| 🧠 Cognitive Complexity | Any function with complexity >10 | `⚠️ HIGH COMPLEXITY` + function names |
-| ⏱️ Time Complexity | Any algorithm worse than O(n log n) that could be better | `⚠️ PERF RISK` + locations |
+| 🧠 Cognitive Complexity | Any function with estimated complexity >10 (see `sub-skills/typescript.md` for counting method) | `⚠️ HIGH COMPLEXITY` + function names |
+| ⏱️ Time Complexity | Any algorithm worse than O(n log n) that could be improved | `⚠️ PERF RISK` + locations |
 | 🗄️ Database Changes | Migration files, schema changes, DynamoDB table defs | `⚠️ DB CHANGES` |
 | ☁️ Infra Changes | SAM/CFN template changes | `⚠️ INFRA CHANGES` + resources added/modified/deleted |
 | 🔐 Security | Secrets, IAM changes, auth changes | `🔴 SECURITY REVIEW NEEDED` |
@@ -120,153 +87,86 @@ Before detailed review, compute flags. These go at the top of the overall commen
 | 🔄 Breaking Changes | API contract changes, removed exports | `🔴 BREAKING CHANGE` |
 | 🧪 Missing Tests | New logic without test files changed | `⚠️ MISSING TESTS` |
 
+Only show flags that are triggered. Skip flags that don't apply.
+
 ### Step 5: Run detailed review
 
 For each changed file, apply sub-skill checklists. For every issue:
-1. Record **file path** and **line number** (line in the new file, not old)
+1. Record **file path** and **line number** (from the `+` lines in the diff — the line number in the new file)
 2. Assign **severity**: 🔴 Critical, 🟡 Warning, 🔵 Suggestion
 3. Write a **concise comment** — one-liner issue + concrete fix
 
 Keep comments short and actionable. One issue per comment. No essays.
 
+**Large diffs (>2000 lines):** Prioritize files with security, database, or infra changes. Skip generated files (lock files, build output, `.snap` files). Note skipped files in the overall comment.
+
 ### Step 6: Calculate token consumption
 
 **Always run this step before posting.** Follow `sub-skills/token-consumption.md` to estimate total tokens consumed by the review.
-
-Calculate byte counts for all inputs (diff, metadata, template, comments, SKILL.md, checklist, loaded sub-skills, source files read). Convert bytes → tokens (÷ 4). Estimate the output payload size (~200–500 tokens for inline comments + body). Estimate cost at both Sonnet and Opus pricing.
-
-Save the token consumption results — they will be included in both the GitHub review comment (Step 7) and the conversation summary (Step 8).
 
 ### Step 7: Post review to GitHub
 
 Build the review payload JSON and write it to `/tmp/pr-review/payload.json`.
 
-The `body` field must include the overall comment **with the token consumption section appended at the end** (see "Overall comment format" below for the full template).
+The **overall comment** (`body`) is a quick summary only — no per-file details. All specific findings go in **inline comments** on the relevant lines.
 
 ```json
 {
   "event": "COMMENT",
-  "body": "<overall comment with flags + checklist + summary + token consumption>",
+  "body": "<overall summary — see format below>",
   "comments": [
     {
       "path": "src/handlers/orderHandler.ts",
       "line": 42,
-      "body": "🟡 **Complexity** — ~18 branches here. Extract validation into `validateOrderItem()`."
-    },
-    {
-      "path": "src/services/userService.ts",
-      "line": 87,
-      "body": "🟡 **Perf** — `await` in loop. Use `Promise.all(ids.map(id => getUser(id)))`."
-    },
-    {
-      "path": "template.yaml",
-      "line": 55,
-      "body": "🔴 **IAM** — `Resource: \"*\"` with `dynamodb:*`. Scope to `!GetAtt OrdersTable.Arn`."
+      "body": "🟡 **Complexity** — ~18 branches. Extract validation into `validateOrderItem()`."
     }
   ]
 }
 ```
 
-Write the payload and post it using the script:
-```bash
-# Write payload to file (Claude generates this from analysis)
-cat > /tmp/pr-review/payload.json << 'REVIEW_JSON'
-{ ... payload ... }
-REVIEW_JSON
-
-# Post the review and clean up
-.claude/pr-reviewer/scripts/post-review.sh <PR_NUMBER>
-```
-
-The script validates the JSON, resolves the repo, posts the review via `gh api`, prints the review URL, and cleans up the payload file.
-
-**Inline comment rules:**
-- `line` = line number in the **new file** (right side of diff)
-- For multi-line issues, use `start_line` + `line` for a range
-- Keep each comment body ≤3 lines
-- One issue per comment
-
-### Step 8: Conversation summary
-
-After posting to GitHub, print a concise summary in the chat. The token consumption is already included in the GitHub review comment — repeat it here for quick visibility.
-
-```
-✅ Review posted to PR #123 (https://github.com/org/repo/pull/123)
-
-Flags: 📏 M (347 lines) | 🧠 HIGH COMPLEXITY (2 fn) | 🗄️ DB CHANGES | 📦 DEPS CHANGED
-
-Posted 7 inline comments: 🔴 1 | 🟡 4 | 🔵 2
-
-Top issues:
-1. IAM Resource: * on DynamoDB policy — scope to table ARN
-2. processOrder() complexity ~18 — extract to helpers
-3. Sequential awaits in userService — use Promise.all
-
-📊 Token Consumption Estimate
-   Input:  ~45,200 tokens ($0.14 at Sonnet / $0.68 at Opus)
-   Output: ~3,800 tokens ($0.06 at Sonnet / $0.29 at Opus)
-   Total:  ~49,000 tokens ($0.20 at Sonnet / $0.97 at Opus)
-```
-
-Keep it short. The detail is in the GitHub comments.
-
----
-
-## Overall comment format (posted to PR)
-
+**Overall comment format (summary only, no repeated details):**
 ```markdown
 ## 🔍 PR Review
 
-### Flags
-📏 **M** (347 lines) | 🧠 **Complexity:** `processOrder`, `validateInput` | 🗄️ **DB Changes** | 📦 **Deps Changed**
+📏 **M** (347 lines) | 🧠 **Complexity:** `processOrder`, `validateInput` | 📦 **Deps Changed**
 
-### Checklist
-
-#### Team Checklist
-- ✅ Unit tests added
-- ❌ Documentation updated — README missing new env var `CACHE_TTL`
-- ➖ N/A — No UI changes
-
-#### Security
-- ✅ No hardcoded secrets
-- ❌ IAM `Resource: *` in template.yaml L55
-
-#### Code Quality
-- ❌ Cognitive complexity >15 in `processOrder` (orderHandler.ts:42)
-
-... (skip all-pass sections — only show sections with findings) ...
-
-### Summary
 🔴 1 critical | 🟡 4 warnings | 🔵 2 suggestions
 
 **Risk:** Medium — IAM scope needs tightening before merge.
 
----
-
-### 📊 Token Consumption Estimate
-
-| Source | Tokens | % |
-|---|---|---|
-| PR diff | ~XX,XXX | XX% |
-| Sub-skills | ~X,XXX | XX% |
-| Skill/template/checklist | ~X,XXX | XX% |
-| PR metadata | ~X,XXX | XX% |
-| Review output | ~X,XXX | XX% |
-
-| | Tokens | Sonnet | Opus |
-|---|---|---|---|
-| Input | ~XX,XXX | $X.XX | $X.XX |
-| Output | ~X,XXX | $X.XX | $X.XX |
-| **Total** | **~XX,XXX** | **$X.XX** | **$X.XX** |
+📊 ~49,000 tokens ($0.20 Sonnet / $0.97 Opus)
 ```
 
-**Principles for the overall comment:**
-- Flags first — instant signal
-- Team checklist items first — respect the team's own checks
-- Skip all-pass sections — only show sections with findings
-- One line per checklist item — scannable
-- One-sentence risk assessment at the end
-- Token consumption always at the end — cost visibility for the team
+**Inline comment rules:**
+- `line` = line number in the **new file** (right side of diff, from `+` lines)
+- For multi-line issues, use `start_line` + `line` for a range
+- Keep each comment body ≤2 lines: issue + fix
+- One issue per comment
+
+Write the payload and post it:
+```bash
+cat > /tmp/pr-review/payload.json << 'REVIEW_JSON'
+{ ... payload ... }
+REVIEW_JSON
+
+scripts/post-review.sh <PR_NUMBER>
+```
+
+### Step 8: Conversation summary
+
+After posting, print a concise summary in the chat:
+
+```
+✅ Review posted to PR #123 (https://github.com/org/repo/pull/123)
+
+📏 M (347 lines) | 🧠 HIGH COMPLEXITY (2 fn) | 🗄️ DB CHANGES
+🔴 1 | 🟡 4 | 🔵 2 — 7 inline comments posted
+
+Risk: Medium — IAM scope needs tightening before merge.
+📊 ~49,000 tokens ($0.20 Sonnet / $0.97 Opus)
+```
+
+Keep it short. The detail is in the inline GitHub comments.
 
 ---
 

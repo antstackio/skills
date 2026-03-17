@@ -17,7 +17,7 @@ Applies to: all files as a baseline review layer. Other sub-skills provide deepe
 ### Input Validation
 - Flag API endpoints that don't validate request body/params
 - Flag missing content-type checks
-- Flag deserialization of untrusted input without validation (JSON.parse on user input, etc.)
+- Flag parsed user input used without schema validation (e.g., `JSON.parse(req.body)` fed directly into DB queries or business logic without validating shape/types)
 - Flag regex patterns that could be vulnerable to ReDoS
 
 ### Authentication & Authorization
@@ -46,7 +46,7 @@ Applies to: all files as a baseline review layer. Other sub-skills provide deepe
 
 ## Logging & Observability
 
-- Flag `console.log` in production code — use a structured logger
+- Flag `console.log` in production code — use a structured logger (JSON-output loggers like pino, winston, or bunyan)
 - Flag sensitive data in log output (PII, tokens, passwords)
 - Flag missing request ID / correlation ID propagation
 - Flag missing error context in logs (which user, which request, what was the input)
@@ -92,13 +92,9 @@ Applies to: all files as a baseline review layer. Other sub-skills provide deepe
 
 ---
 
-## Accessibility (for frontend changes)
+## Accessibility (only for frontend file changes)
 
-- Flag images without `alt` attributes
-- Flag interactive elements without keyboard accessibility
-- Flag missing ARIA labels on custom components
-- Flag color-only indicators (colorblind users can't distinguish)
-- Flag form inputs without associated labels
+- Flag missing `alt`, ARIA labels, keyboard accessibility, and form labels on interactive elements
 
 ---
 
