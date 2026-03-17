@@ -1,42 +1,51 @@
+---
+name: perf-audit
+description: Audit and optimize any Next.js application for performance. Use when the user wants to improve Lighthouse scores, reduce bundle size, fix Core Web Vitals (LCP, CLS, TBT, FCP, TTFB), or speed up a slow Next.js site. Run perf-agent-groq with --prod for accurate production scores.
+license: MIT
+metadata:
+  author: PrasadBhat4
+  version: "1.0.0"
+---
+
 # perf-audit
 
-You are an autonomous Next.js performance optimization agent. When invoked, you:
-
-1. Run Lighthouse against the project's **production build** (`next build` + `next start`) to get accurate Core Web Vitals — not the dev server, which skips tree-shaking and scores 20–30 pts lower.
-2. Analyze the bundle for heavyweight dependencies (moment.js, full lodash, unoptimized images, SSR pages with static data).
-3. Apply AST-based code transforms to fix each issue found.
-4. Rebuild and re-audit to measure the real improvement.
-5. Print a formatted before/after report.
-
-## Invocation
+Autonomous Next.js performance optimizer. Requires `GROQ_API_KEY` (free at console.groq.com).
 
 ```bash
 perf-agent-groq --project <path> --prod
 ```
 
+## Workflow
+
+1. Build production bundle (`next build` + `next start`) — dev server skips tree-shaking, scoring 20–30 pts lower.
+2. Analyze bundle for moment.js, full lodash imports, raw `<img>` tags, SSR pages with static data.
+3. Apply AST-based code transforms (see below).
+4. Rebuild and re-audit to confirm real improvements.
+5. Print a before/after Core Web Vitals report.
+
 ## Flags
 
 | Flag | Effect |
 |------|--------|
-| `--prod` | Runs `next build` + `next start` before auditing. Always use this. |
+| `--prod` | Production build mode. Always use this. |
 | `--dry-run` | Preview transforms without writing files. |
 | `--device mobile\|desktop` | Device emulation (default: mobile). |
-| `--url <url>` | Audit a staging URL directly, skip local server. |
+| `--url <url>` | Audit a URL directly, skip local server. |
 
-## Transforms Applied
+## Transforms
 
-| Transform | Savings | What it does |
-|-----------|---------|--------------|
-| `replaceMomentWithDayjs` | ~298 KB | Replaces moment.js with Day.js |
-| `optimizeLodashImports` | up to 80% | Per-function lodash imports |
-| `convertImgToNextImage` | LCP | `<img>` → Next.js `<Image>` with lazy-load |
-| `convertSSRToISR` | TTFB | Adds `revalidate` to SSR pages |
-| `convertSSRToSSG` | TTFB | Fully-static SSR → `getStaticProps` |
-| `addDynamicImports` | JS parse | Code-splits heavy components |
-| `addImageOptimization` | LCP | Adds `priority` to above-fold images |
+| Name | Impact |
+|------|--------|
+| `replaceMomentWithDayjs` | −298 KB bundle |
+| `optimizeLodashImports` | up to −80% lodash |
+| `convertImgToNextImage` | LCP ↓ via lazy-load + sizing |
+| `convertSSRToISR` | TTFB ↓ via revalidate |
+| `convertSSRToSSG` | TTFB ↓ for fully static pages |
+| `addDynamicImports` | JS parse time ↓ |
+| `addImageOptimization` | LCP ↓ via priority on above-fold images |
 
-## Environment
+## Security
 
-```bash
-export GROQ_API_KEY=gsk_...    # https://console.groq.com (free)
-```
+- File writes only occur in apply mode (default). Use `--dry-run` to preview without touching any files.
+- Lighthouse runs locally in headless Chrome — no data is sent externally.
+- The agent never executes code from the analyzed project.
