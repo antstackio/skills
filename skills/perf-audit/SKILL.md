@@ -95,6 +95,17 @@ export ANTHROPIC_API_KEY=sk-ant-...
 - **Production builds modify files.** The `--prod` flag (without `--dry-run`) writes code changes directly. Always have a clean git state before running so you can `git diff` and revert if needed.
 - API keys are only sent to `api.groq.com` or `api.anthropic.com` — no other external services.
 
+## Source Code
+
+Full implementation at: https://github.com/PrasadBhat4/Frontend_performance_agent
+
+```bash
+git clone https://github.com/PrasadBhat4/Frontend_performance_agent
+cd Frontend_performance_agent
+npm install && npm run build
+npm link   # makes perf-agent-groq available globally
+```
+
 ## MCP Server (Claude Desktop)
 
 Add to `~/.claude/claude_desktop_config.json`:
@@ -104,7 +115,7 @@ Add to `~/.claude/claude_desktop_config.json`:
   "mcpServers": {
     "perf-audit": {
       "command": "node",
-      "args": ["/path/to/frontend-performance-agent/dist/server.js"]
+      "args": ["path/to/Frontend_performance_agent/dist/server.js"]
     }
   }
 }
