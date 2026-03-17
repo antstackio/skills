@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# perf-audit — Next.js performance optimizer (no API key required)
+# Resolve symlinks to find the real package root
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+PACKAGE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+exec npx --prefix "$PACKAGE_ROOT" tsx "$PACKAGE_ROOT/src/pipeline-runner.ts" "$@"

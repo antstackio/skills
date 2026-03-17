@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# perf-agent-groq — AI-powered Next.js optimizer using Groq (free tier)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+PACKAGE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+exec npx --prefix "$PACKAGE_ROOT" tsx "$PACKAGE_ROOT/src/agent-groq.ts" "$@"
