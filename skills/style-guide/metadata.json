@@ -1,0 +1,13 @@
+{
+  "name": "style-guide",
+  "version": "1.0.0",
+  "description": "Generates an interactive, self-contained HTML style guide from design tokens JSON and an assets folder. Produces a single style-guide.html with Color, Typography, Assets, and UI Elements tabs.",
+  "author": "onlyveen",
+  "tags": [
+    "design-systems",
+    "style-guide",
+    "html",
+    "ui-components",
+    "design-tokens"
+  ]
+}
