@@ -1,0 +1,7 @@
+{
+  "name": "figma-design-audit",
+  "description": "Audits a Figma design against its design system. Checks color variables, font styles, numeric variables (padding/corner radius/gap), and unnecessary nesting. Posts inline comments on the Figma canvas for every violation found.",
+  "tags": ["figma", "design-system", "audit", "design-tokens", "ui", "accessibility"],
+  "category": "figma",
+  "version": "1.0.0"
+}
