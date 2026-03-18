@@ -1,0 +1,19 @@
+{
+  "name": "ts-node-debugger",
+  "description": "Codebase-aware TypeScript/Node.js debugging. Reads your project once to learn your error patterns, folder structure, and conventions — then gives exact file:line fixes that match your codebase, not generic examples. Covers TS compiler errors, runtime crashes, async bugs, test failures, and env/config issues across Node.js, Lambda, and React.",
+  "tags": [
+    "typescript",
+    "nodejs",
+    "debugging",
+    "lambda",
+    "express",
+    "jest",
+    "vitest",
+    "testing",
+    "code-review"
+  ],
+  "author": "antstackio",
+  "category": "coding-engineering",
+  "version": "1.0.0",
+  "license": "MIT"
+}
