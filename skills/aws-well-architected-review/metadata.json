@@ -1,0 +1,57 @@
+{
+  "name": "aws-well-architected-review",
+  "description": "Enforces AWS Well-Architected best practices during infrastructure generation and reviews existing infra code for anti-patterns with actionable fixes",
+  "version": "1.0.0",
+  "tags": [
+    "aws",
+    "well-architected",
+    "cloud",
+    "serverless",
+    "review",
+    "architecture",
+    "security",
+    "reliability",
+    "cdk",
+    "terraform",
+    "cloudformation",
+    "generation",
+    "infrastructure"
+  ],
+  "triggers": [
+    "review architecture",
+    "check aws best practices",
+    "well architected",
+    "aws review",
+    "well-architected review",
+    "infrastructure review",
+    "infra review",
+    "review terraform",
+    "review cloudformation",
+    "review sam",
+    "review serverless",
+    "create cdk stack",
+    "create sam template",
+    "create cloudformation",
+    "create lambda",
+    "create s3 bucket",
+    "create dynamodb table",
+    "create sqs queue",
+    "add aws resource",
+    "scaffold aws",
+    "generate infrastructure",
+    "build terraform",
+    "create serverless"
+  ],
+  "inputs": [
+    "codebase",
+    "infrastructure files",
+    "resource requirements"
+  ],
+  "supportedFrameworks": [
+    "AWS CDK",
+    "AWS SAM",
+    "CloudFormation",
+    "Terraform",
+    "Serverless Framework"
+  ]
+}
