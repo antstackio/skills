@@ -26,7 +26,7 @@ This skill is used by **practitioners building or redesigning websites for busin
 | Audience                 | Use Case                                                |
 | ------------------------ | ------------------------------------------------------- |
 | Web agencies             | Differentiate packages with "agent-ready" websites      |
-| No-code platform teams   | Bake dual consumption into templates at scale           |
+| No-code platform teams   | Bake AI compatibility into templates at scale           |
 | Booking software vendors | Make widgets agent-completable by default               |
 | GEO / SEO consultants    | Extend beyond citation into transactional AI visibility |
 
@@ -43,13 +43,7 @@ This skill is used by **practitioners building or redesigning websites for busin
 ## Installation
 
 ```bash
-npx skills add antstackio/skills
-```
-
-Or install directly:
-
-```bash
-npx skills add <your-github-username>/skills
+npx skills add antstackio/skills --skill agent-web-compatibility
 ```
 
 ---
@@ -166,7 +160,7 @@ agent-web-compatibility/
 ### 1. Install
 
 ```bash
-npx skills add antstackio/skills
+npx skills add antstackio/skills --skill agent-web-compatibility
 ```
 
 ### 2. Trigger with a test prompt

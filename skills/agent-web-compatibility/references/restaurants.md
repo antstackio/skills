@@ -1,4 +1,4 @@
-# Restaurants / Cafes — Dual Consumption Reference
+# Restaurants / Cafes — AI Compatibility Reference
 
 ## Choosing the Right Schema Type
 
