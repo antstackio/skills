@@ -216,11 +216,18 @@ Mark each: ✅ Done / ⚠️ Partial / ❌ Missing
 
 Read the relevant file before auditing — each contains required schema fields, trust signals, JSON-LD examples, and booking flow notes:
 
+**Transactional (agentic booking)**
 - `references/healthcare.md` — clinics, diagnostic labs, doctors
 - `references/restaurants.md` — restaurants, cafes, cloud kitchens
 - `references/salons.md` — salons, spas, grooming
 - `references/ecommerce.md` — local D2C, same-day delivery
 - `references/quickcommerce.md` — quick commerce, on-demand delivery
+
+**Informational (AEO + GEO)**
+- `references/content-informational.md` — blogs, editorial sites, marketing sites, personal portfolios, documentation
+
+**Navigational (discovery + contact)**
+- `references/professional-services.md` — agencies, law firms, SaaS products, online courses, hotels
 
 ---
 

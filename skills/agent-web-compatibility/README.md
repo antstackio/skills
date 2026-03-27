@@ -119,12 +119,32 @@ Every audit produces five deliverables:
 
 Detailed implementation specs with ready-to-paste JSON-LD examples are included for:
 
+**Transactional — agentic booking**
+
 | Vertical             | Schema Type                  | Key Fields                                                  |
 | -------------------- | ---------------------------- | ----------------------------------------------------------- |
 | Healthcare / Clinics | `MedicalClinic`, `Physician` | `medicalSpecialty`, `hasCredential`, `availableService`     |
 | Restaurants / Cafes  | `Restaurant`                 | `hasMenuItem`, `servesCuisine`, `priceRange`                |
 | Salons / Spas        | `BeautySalon`, `DaySpa`      | `makesOffer` with duration, `employee` specialisations      |
 | Local E-commerce     | `OnlineStore`, `Product`     | `deliveryLeadTime`, `areaServed`, `hasMerchantReturnPolicy` |
+
+**Informational — AEO + GEO**
+
+| Vertical                       | Schema Type                              | Key Fields                                              |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------- |
+| Blog / Editorial               | `BlogPosting`, `Article`                 | `author` with `hasCredential`, `dateModified`           |
+| Company Marketing              | `Organization`, `WebSite`                | `hasOfferCatalog`, `areaServed`, `sameAs`               |
+| Personal Portfolio             | `Person`, `ProfilePage`                  | `knowsAbout`, `hasOfferCatalog`, `sameAs`               |
+| Documentation / Knowledge Base | `TechArticle`, `HowTo`                   | `HowToStep`, `proficiencyLevel`, `dateModified`         |
+
+**Navigational — discovery + contact**
+
+| Vertical              | Schema Type                                 | Key Fields                                              |
+| --------------------- | ------------------------------------------- | ------------------------------------------------------- |
+| Agency / Consultancy  | `ProfessionalService`                       | `serviceType`, `areaServed`, `employee` with credential |
+| SaaS / Web App        | `SoftwareApplication`                       | `featureList`, `applicationCategory`, `offers`          |
+| Education / Courses   | `Course`, `EducationalOrganization`         | `instructor`, `hasCourseInstance`, `educationalCredentialAwarded` |
+| Travel / Hospitality  | `LodgingBusiness`, `TravelAgency`           | `checkinTime`, `amenityFeature`, `petsAllowed`          |
 
 ---
 
