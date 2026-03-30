@@ -1,4 +1,4 @@
-# Quick Commerce — Dual Consumption Reference
+# Quick Commerce — AI Compatibility Reference
 
 ## What Makes Quick Commerce Different
 

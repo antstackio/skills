@@ -1,4 +1,4 @@
-# Salons / Spas / Grooming — Dual Consumption Reference
+# Salons / Spas / Grooming — AI Compatibility Reference
 
 ## Choosing the Right Schema Type
 

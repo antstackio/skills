@@ -1,19 +1,23 @@
 {
   "name": "agent-web-compatibility",
-  "description": "Audit and redesign websites to perform well for both human visitors and AI agents acting on their behalf. Covers structured data markup, machine-readable trust signals, agent-friendly booking flows, and llms.txt setup for clinics, restaurants, salons, and local e-commerce.",
+  "description": "Audit and redesign websites for AI consumption: structured data for agent discoverability, AEO for featured snippets and voice, GEO for AI citations, and agent-friendly booking flows. AI-optimized, human-compatible — AI performance is the goal; human experience is a constraint.",
   "tags": [
     "web-design",
     "ai-agents",
     "structured-data",
     "schema-org",
     "seo",
+    "aeo",
     "geo",
     "llms-txt",
     "booking",
-    "dual-consumption",
+
     "agentic-web",
     "trust-signals",
-    "local-business"
+    "local-business",
+    "featured-snippets",
+    "ai-citations",
+    "eeat"
   ],
   "category": "web-design",
   "version": "1.0.0"

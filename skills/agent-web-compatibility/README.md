@@ -26,7 +26,7 @@ This skill is used by **practitioners building or redesigning websites for busin
 | Audience                 | Use Case                                                |
 | ------------------------ | ------------------------------------------------------- |
 | Web agencies             | Differentiate packages with "agent-ready" websites      |
-| No-code platform teams   | Bake dual consumption into templates at scale           |
+| No-code platform teams   | Bake AI compatibility into templates at scale           |
 | Booking software vendors | Make widgets agent-completable by default               |
 | GEO / SEO consultants    | Extend beyond citation into transactional AI visibility |
 
@@ -43,13 +43,7 @@ This skill is used by **practitioners building or redesigning websites for busin
 ## Installation
 
 ```bash
-npx skills add antstackio/skills
-```
-
-Or install directly:
-
-```bash
-npx skills add <your-github-username>/skills
+npx skills add antstackio/skills --skill agent-web-compatibility
 ```
 
 ---
@@ -125,12 +119,32 @@ Every audit produces five deliverables:
 
 Detailed implementation specs with ready-to-paste JSON-LD examples are included for:
 
+**Transactional — agentic booking**
+
 | Vertical             | Schema Type                  | Key Fields                                                  |
 | -------------------- | ---------------------------- | ----------------------------------------------------------- |
 | Healthcare / Clinics | `MedicalClinic`, `Physician` | `medicalSpecialty`, `hasCredential`, `availableService`     |
 | Restaurants / Cafes  | `Restaurant`                 | `hasMenuItem`, `servesCuisine`, `priceRange`                |
 | Salons / Spas        | `BeautySalon`, `DaySpa`      | `makesOffer` with duration, `employee` specialisations      |
 | Local E-commerce     | `OnlineStore`, `Product`     | `deliveryLeadTime`, `areaServed`, `hasMerchantReturnPolicy` |
+
+**Informational — AEO + GEO**
+
+| Vertical                       | Schema Type                              | Key Fields                                              |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------- |
+| Blog / Editorial               | `BlogPosting`, `Article`                 | `author` with `hasCredential`, `dateModified`           |
+| Company Marketing              | `Organization`, `WebSite`                | `hasOfferCatalog`, `areaServed`, `sameAs`               |
+| Personal Portfolio             | `Person`, `ProfilePage`                  | `knowsAbout`, `hasOfferCatalog`, `sameAs`               |
+| Documentation / Knowledge Base | `TechArticle`, `HowTo`                   | `HowToStep`, `proficiencyLevel`, `dateModified`         |
+
+**Navigational — discovery + contact**
+
+| Vertical              | Schema Type                                 | Key Fields                                              |
+| --------------------- | ------------------------------------------- | ------------------------------------------------------- |
+| Agency / Consultancy  | `ProfessionalService`                       | `serviceType`, `areaServed`, `employee` with credential |
+| SaaS / Web App        | `SoftwareApplication`                       | `featureList`, `applicationCategory`, `offers`          |
+| Education / Courses   | `Course`, `EducationalOrganization`         | `instructor`, `hasCourseInstance`, `educationalCredentialAwarded` |
+| Travel / Hospitality  | `LodgingBusiness`, `TravelAgency`           | `checkinTime`, `amenityFeature`, `petsAllowed`          |
 
 ---
 
@@ -166,7 +180,7 @@ agent-web-compatibility/
 ### 1. Install
 
 ```bash
-npx skills add antstackio/skills
+npx skills add antstackio/skills --skill agent-web-compatibility
 ```
 
 ### 2. Trigger with a test prompt

@@ -1,4 +1,4 @@
-# Healthcare / Clinics — Dual Consumption Reference
+# Healthcare / Clinics — AI Compatibility Reference
 
 ## Choosing the Right Schema Type
 

@@ -1,4 +1,4 @@
-# Local E-commerce / D2C — Dual Consumption Reference
+# Local E-commerce / D2C — AI Compatibility Reference
 
 ## What Makes Local E-commerce Different from Quick Commerce
 
