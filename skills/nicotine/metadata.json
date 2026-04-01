@@ -1,0 +1,7 @@
+{
+  "name": "nicotine",
+  "description": "Smart pre-compact workflow that extracts and curates session knowledge before /compact runs, replacing the auto-generated summary with a user-approved structured one.",
+  "tags": ["context", "compact", "memory", "workflow", "productivity", "session-management"],
+  "category": "workflow",
+  "version": "1.0.0"
+}
